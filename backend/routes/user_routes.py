@@ -1,16 +1,20 @@
-from flask import Blueprint
+from flask import Blueprint, jsonify, request
+from controller.user_controller import UserController
 
-user = Blueprint('main', __name__)
+user_routes = Blueprint('user_routes', __name__)
 
-@user.route('/')
-def index():
-    return "Welcome to the main page!"
+@user_routes.route('/users', methods=['GET'])
+def get_users():
+    users = UserController.get_all_users()
+    return jsonify(users)
 
-@user.route('/about')
-def about():
-    return "This is the about page."
+@user_routes.route('/users/<int:user_id>', methods=['GET'])
+def get_user(user_id):
+    user = UserController.get_user(user_id)
+    return jsonify(user)
 
-@user.route('/contact')
-def contact():
-    return "Contact us here."
-
+@user_routes.route('/users', methods=['POST'])
+def create_user():
+    user_data = request.json
+    result = UserController.create_user(user_data)
+    return jsonify(result), 201
