@@ -63,6 +63,10 @@
     - This is going to be the catch-all function to update specific user data, instead of having specific functions to add classes, change address,etc.
     - Input is a JSON blob containing all of the new data for that student entry
     - Returns confirmation
+- add_course(scheduled_course_id)
+    - Input is the id of the course the user wants to register for
+    - This function must check that the new course doesn't conflict with any existing courses for the current user, and if it does, it must return an error
+    - Returns confirmation
 - delete_student(ID)
     - Get request
     - Returns confirmation
@@ -71,10 +75,6 @@
 - get_all_majors()
     - Get request
     - Returns all majors in the table
-- get_multiple_majors(array of IDs)
-    - Get request
-    - This function allows the user to look at multiple majors at once
-    - Returns multiple major objects specified by ID
 - get_major(ID)
     - Get request
     - Returns JSON blob with all major data
@@ -128,7 +128,6 @@
     - Returns JSON blob with all scheduled_course data
 - create_scheduled_course(scheduled_course_data)
     - Post request
-    - This function must check that the new course doesn't conflict with any existing courses for the current user, and if it does, it must return an error
     - Input is a JSON blob containing all of the data required to create a new scheduled_course
     - Returns confirmation
 - edit_scheduled_course(scheduled_course_data)
