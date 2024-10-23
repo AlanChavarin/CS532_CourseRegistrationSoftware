@@ -5,6 +5,7 @@ class UserController:
         # For now, we'll just return a dummy list
         return ["User1", "User2", "User3"]
 
+
     @staticmethod
     def get_user(user_id):
         # Again, you'd typically fetch this from a database
