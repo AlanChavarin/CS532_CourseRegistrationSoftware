@@ -1,0 +1,1 @@
+ALTER TABLE "course_faculty" ADD CONSTRAINT "course_faculty__pk" PRIMARY KEY("");

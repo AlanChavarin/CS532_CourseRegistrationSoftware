@@ -1,0 +1,1 @@
+ALTER TABLE "courses" RENAME TO "majors";
