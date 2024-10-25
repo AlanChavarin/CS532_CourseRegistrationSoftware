@@ -1,7 +1,10 @@
+CREATE TYPE "public"."week_day" AS ENUM('Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday');--> statement-breakpoint
+CREATE TYPE "public"."user_type" AS ENUM('faculty', 'student');--> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "majors" (
 	"id" serial PRIMARY KEY NOT NULL,
 	"title" varchar(255) NOT NULL,
-	"department" varchar(100) NOT NULL
+	"department" varchar(100) NOT NULL,
+	"description" text
 );
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "users" (
@@ -65,9 +68,12 @@ CREATE TABLE IF NOT EXISTS "courses" (
 );
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "dates" (
+	"id" serial PRIMARY KEY NOT NULL,
 	"day" "week_day" NOT NULL,
 	"start_time" varchar(5) NOT NULL,
-	"end_time" varchar(5) NOT NULL
+	"end_time" varchar(5) NOT NULL,
+	"scheduled_course_id" integer,
+	"faculty_id" integer
 );
 --> statement-breakpoint
 DO $$ BEGIN
@@ -132,6 +138,18 @@ END $$;
 --> statement-breakpoint
 DO $$ BEGIN
  ALTER TABLE "courses" ADD CONSTRAINT "courses_department_id_departments_id_fk" FOREIGN KEY ("department_id") REFERENCES "public"."departments"("id") ON DELETE no action ON UPDATE no action;
+EXCEPTION
+ WHEN duplicate_object THEN null;
+END $$;
+--> statement-breakpoint
+DO $$ BEGIN
+ ALTER TABLE "dates" ADD CONSTRAINT "dates_scheduled_course_id_scheduled_courses_id_fk" FOREIGN KEY ("scheduled_course_id") REFERENCES "public"."scheduled_courses"("id") ON DELETE no action ON UPDATE no action;
+EXCEPTION
+ WHEN duplicate_object THEN null;
+END $$;
+--> statement-breakpoint
+DO $$ BEGIN
+ ALTER TABLE "dates" ADD CONSTRAINT "dates_faculty_id_faculty_id_fk" FOREIGN KEY ("faculty_id") REFERENCES "public"."faculty"("id") ON DELETE no action ON UPDATE no action;
 EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;

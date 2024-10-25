@@ -1,2 +1,0 @@
-CREATE TYPE "public"."week_day" AS ENUM('Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday');--> statement-breakpoint
-CREATE TYPE "public"."user_type" AS ENUM('faculty', 'student');
