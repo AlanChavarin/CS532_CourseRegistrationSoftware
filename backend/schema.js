@@ -101,6 +101,7 @@ const courseMajorsRelations = relations(courseMajors, ({ one }) => ({
     fields: [courseMajors.majorId],
     references: [majors.id]
   })
+
 }));
 
 const majorRelations = relations(majors, ({ many }) => ({
@@ -207,7 +208,7 @@ const studentScheduledCoursesRelations = relations(studentScheduledCourses, ({ o
   })
 }));
 
-const scheduledCourseRelations = relations(scheduledCourses, ({ one }) => ({
+const scheduledCourseRelations = relations(scheduledCourses, ({ many, one }) => ({
   instructor: one(faculty, {
     fields: [scheduledCourses.instructorId],
     references: [faculty.id]
@@ -258,7 +259,7 @@ const dateRelations = relations(dates, ({ one }) => ({
   })
 }));
 
-const studentRelations = relations(students, ({ one }) => ({
+const studentRelations = relations(students, ({ one, many }) => ({
   user: one(users, {
     fields: [students.userId],
     references: [users.id]
