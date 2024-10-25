@@ -1,0 +1,1 @@
+ALTER TABLE "course_prerequisites" ADD COLUMN "id" serial PRIMARY KEY NOT NULL;

@@ -71,9 +71,7 @@ const courses  = pgTable('courses', {
   id: serial('id').primaryKey(),
   title: varchar('title', { length: 255 }).notNull(),
   description: text('description'),
-  prerequisites: jsonb('prerequisites').default([]),
   units: integer('units').notNull(),
-  qualifiedFaculty: jsonb('qualified_faculty').default([]),
   departmentId: integer('department_id').references(() => departments.id),
 });
 
@@ -88,24 +86,83 @@ const userRelations = relations(users, ({ one }) => ({
   })
 }));
 
+const courseMajors = pgTable('course_majors', {
+  id: serial('id').primaryKey(),
+  courseId: integer('course_id').references(() => courses.id),
+  majorId: integer('major_id').references(() => majors.id)
+});
+
+const courseMajorsRelations = relations(courseMajors, ({ one }) => ({
+  course: one(courses, {
+    fields: [courseMajors.courseId],
+    references: [courses.id]
+  }),
+  major: one(majors, {
+    fields: [courseMajors.majorId],
+    references: [majors.id]
+  })
+}));
+
 const majorRelations = relations(majors, ({ many }) => ({
   studentsWithMajor: many(students, { relationName: "studentMajor" }),
   studentsWithMinor: many(students, { relationName: "studentMinor" }),
-  courses: many(courses),
-  faculty: many(faculty),
+  majorFaculty: many(majorFaculty),
+  courseMajors: many(courseMajors)
 }));
 
 const courseRelations = relations(courses, ({ many, one }) => ({
-  majors: many(majors),
-  faculty: many(faculty),
-  advisors: many(faculty),
-  prerequisites: many(courses),
+  prerequisites: many(coursePrerequisites, { relationName: 'coursePrerequisites' }),
+  prerequisiteFor: many(coursePrerequisites, { relationName: 'prerequisiteForCourses' }),
   scheduledCourses: many(scheduledCourses),
   department: one(departments, {
     fields: [courses.departmentId],
     references: [departments.id]
   }),
+  courseMajors: many(courseMajors),
+  courseQualifiedFaculty: many(courseQualifiedFaculty)
 }));
+
+const coursePrerequisites = pgTable('course_prerequisites', {
+  id: serial('id').primaryKey(),
+  courseId: integer('course_id').references(() => courses.id),
+  prerequisiteId: integer('prerequisite_id').references(() => courses.id)
+});
+
+const coursePrerequisitesRelations = relations(coursePrerequisites, ({ one }) => ({
+  course: one(courses, {
+    fields: [coursePrerequisites.courseId],
+    references: [courses.id],
+    relationName: 'coursePrerequisites'
+  }),
+  prerequisite: one(courses, {
+    fields: [coursePrerequisites.prerequisiteId],
+    references: [courses.id],
+    relationName: 'prerequisiteForCourses'
+  })
+}));
+
+const majorFaculty = pgTable('major_faculty', {
+  id: serial('id').primaryKey(),
+  majorId: integer('major_id').references(() => majors.id),
+  facultyId: integer('faculty_id').references(() => faculty.id)
+});
+
+const majorFacultyRelations = relations(majorFaculty, ({ one }) => ({
+  major: one(majors, {
+    fields: [majorFaculty.majorId],
+    references: [majors.id]
+  }),
+  faculty: one(faculty, {
+    fields: [majorFaculty.facultyId],
+    references: [faculty.id]
+  })
+}));
+
+const courseQualifiedFaculty = pgTable('course_qualified_faculty', {
+  id: serial('id').primaryKey(),
+  courseId: integer('course_id').references(() => courses.id),
+  facultyId: integer('faculty_id').references(() => faculty.id)
+});
 
 const facultyRelations = relations(faculty, ({ one, many }) => ({
   user: one(users, {
@@ -116,8 +173,38 @@ const facultyRelations = relations(faculty, ({ one, many }) => ({
     fields: [faculty.mainDepartment],
     references: [departments.id]
   }),
-  courses: many(courses),
-  scheduledCourses: many(scheduledCourses)
+  facultyDepartmentsInvolvedIn: many(facultyDepartmentsInvolvedIn),
+  majorFaculty: many(majorFaculty),
+  scheduledCourses: many(scheduledCourses),
+  courseQualifiedFaculty: many(courseQualifiedFaculty)
+}));
+
+const courseQualifiedFacultyRelations = relations(courseQualifiedFaculty, ({ one }) => ({
+  course: one(courses, {
+    fields: [courseQualifiedFaculty.courseId],
+    references: [courses.id]
+  }),
+  faculty: one(faculty, {
+    fields: [courseQualifiedFaculty.facultyId],
+    references: [faculty.id]
+  })
+}));
+
+const studentScheduledCourses = pgTable('student_scheduled_courses', {
+  id: serial('id').primaryKey(),
+  studentId: integer('student_id').references(() => students.id),
+  scheduledCourseId: integer('scheduled_course_id').references(() => scheduledCourses.id)
+});
+
+const studentScheduledCoursesRelations = relations(studentScheduledCourses, ({ one }) => ({
+  student: one(students, {
+    fields: [studentScheduledCourses.studentId],
+    references: [students.id]
+  }),
+  scheduledCourse: one(scheduledCourses, {
+    fields: [studentScheduledCourses.scheduledCourseId],
+    references: [scheduledCourses.id]
+  })
 }));
 
 const scheduledCourseRelations = relations(scheduledCourses, ({ one }) => ({
@@ -128,7 +215,8 @@ const scheduledCourseRelations = relations(scheduledCourses, ({ one }) => ({
   course: one(courses, {
     fields: [scheduledCourses.courseId],
     references: [courses.id]
-  })
+  }),
+  studentScheduledCourses: many(studentScheduledCourses)
 
 }));
 
@@ -137,8 +225,26 @@ const departmentRelations = relations(departments, ({ one, many }) => ({
     fields: [departments.headFacultyId],
     references: [faculty.id]
   }),
+  facultyDepartmentsInvolvedIn: many(facultyDepartmentsInvolvedIn),
   courses: many(courses),
   faculty: many(faculty)
+}));
+
+const facultyDepartmentsInvolvedIn = pgTable('faculty_departments_involved_in', {
+  id: serial('id').primaryKey(),
+  facultyId: integer('faculty_id').references(() => faculty.id),
+  departmentId: integer('department_id').references(() => departments.id)
+});
+
+const facultyDepartmentsInvolvedInRelations = relations(facultyDepartmentsInvolvedIn, ({ one }) => ({
+  faculty: one(faculty, {
+    fields: [facultyDepartmentsInvolvedIn.facultyId],
+    references: [faculty.id]
+  }),
+  department: one(departments, {
+    fields: [facultyDepartmentsInvolvedIn.departmentId],
+    references: [departments.id]
+  })
 }));
 
 const dateRelations = relations(dates, ({ one }) => ({
@@ -166,7 +272,8 @@ const studentRelations = relations(students, ({ one }) => ({
     fields: [students.minorId],
     references: [majors.id],
     relationName: "studentMinor"
-  })
+  }),
+  studentScheduledCourses: many(studentScheduledCourses)
 
 }));
 
@@ -189,5 +296,18 @@ module.exports = {
     departmentRelations,
     scheduledCourseRelations,
     courseRelations,
-    dateRelations
+    dateRelations,
+    courseMajors,
+    majorFaculty,
+    majorFacultyRelations,
+    courseMajorsRelations,
+    courseQualifiedFaculty,
+    courseQualifiedFacultyRelations,
+    coursePrerequisites,
+    coursePrerequisitesRelations, 
+    facultyDepartmentsInvolvedIn,
+    facultyDepartmentsInvolvedInRelations,
+    studentScheduledCourses,
+    studentScheduledCoursesRelations
+
 };
