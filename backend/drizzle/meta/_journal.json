@@ -64,6 +64,34 @@
       "when": 1729833506856,
       "tag": "0008_freezing_daredevil",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1729863312757,
+      "tag": "0009_short_magneto",
+      "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1729863576460,
+      "tag": "0010_dry_shaman",
+      "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1729864167266,
+      "tag": "0011_groovy_fabian_cortez",
+      "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1730366208582,
+      "tag": "0012_aspiring_husk",
+      "breakpoints": true
     }
   ]
 }

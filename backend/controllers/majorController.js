@@ -1,63 +1,108 @@
 const asyncHandler = require('express-async-handler')
+const { db } = require('../db')
+const { majors } = require('../schema')
+const { eq } = require('drizzle-orm')
 
-// Get all majors
+// @desc    Get all majors
+// @route   GET /api/majors
+// @access  Public
 const getMajors = asyncHandler(async (req, res) => {
-    const dummyMajors = [
-        { id: 1, name: 'Computer Science' },
-        { id: 2, name: 'Mathematics' },
-        { id: 3, name: 'Physics' }
-    ];
-    res.status(200).json(dummyMajors);
-});
-
-const getMajor = asyncHandler(async (req, res) => {
-    const { id } = req.params;
-    // In a real application, you would fetch the major from a database
-    // For now, we'll use a dummy major
-    const dummyMajor = { id: parseInt(id), name: 'Computer Science' };
-    
-    if (!dummyMajor) {
-        res.status(404);
-        throw new Error('Major not found');
-    }
-    
-    res.status(200).json(dummyMajor);
+  const allMajors = await db.select().from(majors).leftJoin(departments, eq(majors.departmentId, departments.id))
+  res.status(200).json(allMajors)
 })
 
-// Create a new major
+// @desc    Get single major
+// @route   GET /api/majors/:id
+// @access  Public
+const getMajor = asyncHandler(async (req, res) => {
+  const major = await db.query.majors.findFirst({
+    where: eq(majors.id, parseInt(req.params.id)),
+    with: {
+      departments: true
+    }
+  })
+
+  if (!major) {
+    res.status(404)
+    throw new Error('Major not found')
+  }
+
+  res.status(200).json(major)
+})
+
+// @desc    Create new major
+// @route   POST /api/majors
+// @access  Private/Admin
 const createMajor = asyncHandler(async (req, res) => {
-    const { name } = req.body;
-    if (!name) {
-        res.status(400);
-        throw new Error('Please provide a name for the major');
-    }
-    const newMajor = { id: Date.now(), name };
-    res.status(201).json(newMajor);
-});
+  const { name, description } = req.body
 
-// Update a major
+  if (!name) {
+    res.status(400)
+    throw new Error('Please provide a name for the major')
+  }
+
+  const major = await db.insert(majors).values({
+    name,
+    description: description || null
+  }).returning()
+
+  res.status(201).json(major[0])
+})
+
+// @desc    Update major
+// @route   PUT /api/majors/:id
+// @access  Private/Admin
 const updateMajor = asyncHandler(async (req, res) => {
-    const { id } = req.params;
-    const { name } = req.body;
-    if (!name) {
-        res.status(400);
-        throw new Error('Please provide a name for the major');
-    }
-    const updatedMajor = { id: parseInt(id), name };
-    res.status(200).json(updatedMajor);
-});
+  const { name, description } = req.body
 
-// Delete a major
+  const major = await db.query.majors.findFirst({
+    where: eq(majors.id, parseInt(req.params.id))
+  })
+
+  if (!major) {
+    res.status(404)
+    throw new Error('Major not found')
+  }
+
+  if (!name) {
+    res.status(400)
+    throw new Error('Please provide a name for the major')
+  }
+
+  const updatedMajor = await db.update(majors)
+    .set({
+      name,
+      description: description || major.description
+    })
+    .where(eq(majors.id, parseInt(req.params.id)))
+    .returning()
+
+  res.status(200).json(updatedMajor[0])
+})
+
+// @desc    Delete major
+// @route   DELETE /api/majors/:id
+// @access  Private/Admin
 const deleteMajor = asyncHandler(async (req, res) => {
-    const { id } = req.params;
-    // In a real application, you would delete the major from the database here
-    res.status(200).json({ message: `Major with id ${id} deleted successfully` });
-});
+  const major = await db.query.majors.findFirst({
+    where: eq(majors.id, parseInt(req.params.id))
+  })
+
+  if (!major) {
+    res.status(404)
+    throw new Error('Major not found')
+  }
+
+  await db.delete(majors)
+    .where(eq(majors.id, parseInt(req.params.id)))
+
+  res.status(200).json({ message: 'Major deleted successfully' })
+})
 
 module.exports = {
-    getMajors,
-    getMajor,
-    createMajor,
-    updateMajor,
-    deleteMajor
-};
+  getMajors,
+  getMajor,
+  createMajor,
+  updateMajor,
+  deleteMajor
+}

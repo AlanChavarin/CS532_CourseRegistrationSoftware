@@ -1,57 +1,118 @@
 const asyncHandler = require('express-async-handler')
+const { db } = require('../db')
+const { scheduledCourses } = require('../schema')
+const { eq } = require('drizzle-orm')
 
-// Get all scheduled courses
+// @desc    Get all scheduled courses
+// @route   GET /api/scheduled-courses
+// @access  Public
 const getScheduledCourses = asyncHandler(async (req, res) => {
-    const dummyScheduledCourses = [
-        { id: 1, name: 'Introduction to Programming', code: 'CS101', professor: 'Dr. Smith', room: 'A101', startTime: '09:00', endTime: '10:30' },
-        { id: 2, name: 'Data Structures', code: 'CS201', professor: 'Dr. Johnson', room: 'B202', startTime: '11:00', endTime: '12:30' },
-        { id: 3, name: 'Algorithms', code: 'CS301', professor: 'Dr. Brown', room: 'C303', startTime: '14:00', endTime: '15:30' }
-    ];
-    res.status(200).json(dummyScheduledCourses);
+    const allScheduledCourses = await db.query.scheduledCourses.findMany({
+        with: {
+            course: true,
+            faculty: true
+        }
+    });
+    res.status(200).json(allScheduledCourses);
 });
 
+// @desc    Get single scheduled course
+// @route   GET /api/scheduled-courses/:id
+// @access  Public
 const getScheduledCourse = asyncHandler(async (req, res) => {
-    const { id } = req.params;
-    // In a real application, you would fetch the scheduled course from a database
-    // For now, we'll use a dummy scheduled course
-    const dummyScheduledCourse = { id: parseInt(id), name: 'Introduction to Programming', code: 'CS101', professor: 'Dr. Smith', room: 'A101', startTime: '09:00', endTime: '10:30' };
-    
-    if (!dummyScheduledCourse) {
+    const scheduledCourse = await db.query.scheduledCourses.findFirst({
+        where: eq(scheduledCourses.id, parseInt(req.params.id)),
+        with: {
+            course: true,
+            faculty: true
+        }
+    });
+
+    if (!scheduledCourse) {
         res.status(404);
         throw new Error('Scheduled course not found');
     }
-    
-    res.status(200).json(dummyScheduledCourse);
-})
 
-// Create a new scheduled course
+    res.status(200).json(scheduledCourse);
+});
+
+// @desc    Create new scheduled course
+// @route   POST /api/scheduled-courses
+// @access  Private/Admin
 const createScheduledCourse = asyncHandler(async (req, res) => {
-    const { name, code, professor, room, startTime, endTime } = req.body;
-    if (!name || !code || !professor || !room || !startTime || !endTime) {
+    const { courseId, facultyId, room, startTime, endTime, semester, year } = req.body;
+
+    if (!courseId || !facultyId || !room || !startTime || !endTime || !semester || !year) {
         res.status(400);
         throw new Error('Please provide all required fields for the scheduled course');
     }
-    const newScheduledCourse = { id: Date.now(), name, code, professor, room, startTime, endTime };
-    res.status(201).json(newScheduledCourse);
+
+    const newScheduledCourse = await db.insert(scheduledCourses).values({
+        courseId,
+        facultyId,
+        room,
+        startTime,
+        endTime,
+        semester,
+        year
+    }).returning();
+
+    res.status(201).json(newScheduledCourse[0]);
 });
 
-// Update a scheduled course
+// @desc    Update scheduled course
+// @route   PUT /api/scheduled-courses/:id
+// @access  Private/Admin
 const updateScheduledCourse = asyncHandler(async (req, res) => {
-    const { id } = req.params;
-    const { name, code, professor, room, startTime, endTime } = req.body;
-    if (!name || !code || !professor || !room || !startTime || !endTime) {
+    const scheduledCourse = await db.query.scheduledCourses.findFirst({
+        where: eq(scheduledCourses.id, parseInt(req.params.id))
+    });
+
+    if (!scheduledCourse) {
+        res.status(404);
+        throw new Error('Scheduled course not found');
+    }
+
+    const { courseId, facultyId, room, startTime, endTime, semester, year } = req.body;
+
+    if (!courseId || !facultyId || !room || !startTime || !endTime || !semester || !year) {
         res.status(400);
         throw new Error('Please provide all required fields for the scheduled course');
     }
-    const updatedScheduledCourse = { id: parseInt(id), name, code, professor, room, startTime, endTime };
-    res.status(200).json(updatedScheduledCourse);
+
+    const updatedScheduledCourse = await db.update(scheduledCourses)
+        .set({
+            courseId,
+            facultyId,
+            room,
+            startTime,
+            endTime,
+            semester,
+            year
+        })
+        .where(eq(scheduledCourses.id, parseInt(req.params.id)))
+        .returning();
+
+    res.status(200).json(updatedScheduledCourse[0]);
 });
 
-// Delete a scheduled course
+// @desc    Delete scheduled course
+// @route   DELETE /api/scheduled-courses/:id
+// @access  Private/Admin
 const deleteScheduledCourse = asyncHandler(async (req, res) => {
-    const { id } = req.params;
-    // In a real application, you would delete the scheduled course from the database here
-    res.status(200).json({ message: `Scheduled course with id ${id} deleted successfully` });
+    const scheduledCourse = await db.query.scheduledCourses.findFirst({
+        where: eq(scheduledCourses.id, parseInt(req.params.id))
+    });
+
+    if (!scheduledCourse) {
+        res.status(404);
+        throw new Error('Scheduled course not found');
+    }
+
+    await db.delete(scheduledCourses)
+        .where(eq(scheduledCourses.id, parseInt(req.params.id)));
+
+    res.status(200).json({ message: 'Scheduled course deleted successfully' });
 });
 
 module.exports = {

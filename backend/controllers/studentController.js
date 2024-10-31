@@ -1,57 +1,113 @@
 const asyncHandler = require('express-async-handler')
+const { db } = require('../db')
+const { students } = require('../schema')
+const { eq } = require('drizzle-orm')
 
-// Get all students
+// @desc    Get all students
+// @route   GET /api/students
+// @access  Public
 const getStudents = asyncHandler(async (req, res) => {
-    const dummyStudents = [
-        { id: 1, name: 'John Doe', email: 'john@example.com', major: 'Computer Science' },
-        { id: 2, name: 'Jane Smith', email: 'jane@example.com', major: 'Mathematics' },
-        { id: 3, name: 'Bob Johnson', email: 'bob@example.com', major: 'Physics' }
-    ];
-    res.status(200).json(dummyStudents);
+    const allStudents = await db.query.students.findMany({
+        with: {
+            major: true
+        }
+    });
+    res.status(200).json(allStudents);
 });
 
+// @desc    Get single student
+// @route   GET /api/students/:id
+// @access  Public
 const getStudent = asyncHandler(async (req, res) => {
-    const { id } = req.params;
-    // In a real application, you would fetch the student from a database
-    // For now, we'll use a dummy student
-    const dummyStudent = { id: parseInt(id), name: 'John Doe', email: 'john@example.com', major: 'Computer Science' };
-    
-    if (!dummyStudent) {
+    const student = await db.query.students.findFirst({
+        where: eq(students.id, parseInt(req.params.id)),
+        with: {
+            major: true
+        }
+    });
+
+    if (!student) {
         res.status(404);
         throw new Error('Student not found');
     }
     
-    res.status(200).json(dummyStudent);
-})
+    res.status(200).json(student);
+});
 
-// Create a new student
+// @desc    Create new student
+// @route   POST /api/students
+// @access  Private/Admin
 const createStudent = asyncHandler(async (req, res) => {
-    const { name, email, major } = req.body;
-    if (!name || !email || !major) {
+    const { name, email, majorId } = req.body;
+
+    if (!name || !email || !majorId) {
         res.status(400);
-        throw new Error('Please provide a name, email, and major for the student');
+        throw new Error('Please provide name, email, and majorId for the student');
     }
-    const newStudent = { id: Date.now(), name, email, major };
-    res.status(201).json(newStudent);
+
+    // Check if student with email already exists
+    const existingStudent = await db.query.students.findFirst({
+        where: eq(students.email, email)
+    });
+
+    if (existingStudent) {
+        res.status(400);
+        throw new Error('Student with this email already exists');
+    }
+
+    const newStudent = await db.insert(students).values({
+        name,
+        email,
+        majorId
+    }).returning();
+
+    res.status(201).json(newStudent[0]);
 });
 
-// Update a student
+// @desc    Update student
+// @route   PUT /api/students/:id
+// @access  Private/Admin
 const updateStudent = asyncHandler(async (req, res) => {
-    const { id } = req.params;
-    const { name, email, major } = req.body;
-    if (!name || !email || !major) {
-        res.status(400);
-        throw new Error('Please provide a name, email, and major for the student');
+    const { name, email, majorId } = req.body;
+
+    const student = await db.query.students.findFirst({
+        where: eq(students.id, parseInt(req.params.id))
+    });
+
+    if (!student) {
+        res.status(404);
+        throw new Error('Student not found');
     }
-    const updatedStudent = { id: parseInt(id), name, email, major };
-    res.status(200).json(updatedStudent);
+
+    const updatedStudent = await db.update(students)
+        .set({
+            name: name || student.name,
+            email: email || student.email,
+            majorId: majorId || student.majorId
+        })
+        .where(eq(students.id, parseInt(req.params.id)))
+        .returning();
+
+    res.status(200).json(updatedStudent[0]);
 });
 
-// Delete a student
+// @desc    Delete student
+// @route   DELETE /api/students/:id
+// @access  Private/Admin
 const deleteStudent = asyncHandler(async (req, res) => {
-    const { id } = req.params;
-    // In a real application, you would delete the student from the database here
-    res.status(200).json({ message: `Student with id ${id} deleted successfully` });
+    const student = await db.query.students.findFirst({
+        where: eq(students.id, parseInt(req.params.id))
+    });
+
+    if (!student) {
+        res.status(404);
+        throw new Error('Student not found');
+    }
+
+    await db.delete(students)
+        .where(eq(students.id, parseInt(req.params.id)));
+
+    res.status(200).json({ message: `Student with id ${req.params.id} deleted successfully` });
 });
 
 module.exports = {
