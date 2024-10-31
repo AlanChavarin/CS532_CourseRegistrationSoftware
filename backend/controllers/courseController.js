@@ -7,19 +7,11 @@ const { eq } = require('drizzle-orm')
 // @route   GET /api/courses
 // @access  Public
 const getCourses = asyncHandler(async (req, res) => {
-    const allCourses = await db.query.courses.findMany({
-        with: {
-            department: true,
-            scheduledCourses: true,
-            courseQualifiedFaculty: {
-                with: {
-                    faculty: true
-                }
-            }
-        }
-    });
+
+    const allCourses = await db.query.courses.findMany();
     res.status(200).json(allCourses);
-});
+    
+})
 
 // @desc    Get single course
 // @route   GET /api/courses/:id
@@ -50,19 +42,19 @@ const getCourse = asyncHandler(async (req, res) => {
 // @route   POST /api/courses
 // @access  Private/Admin
 const createCourse = asyncHandler(async (req, res) => {
-    const { name, code, description, credits, departmentId } = req.body;
+    const { title, description, units, departmentId, isGraduateLevel } = req.body;
 
-    if (!name || !code || !credits || !departmentId) {
+    if (!title || !units || !departmentId) {
         res.status(400);
         throw new Error('Please provide all required fields');
     }
 
     const course = await db.insert(courses).values({
-        name,
-        code,
+        title,
         description,
-        credits,
-        departmentId
+        units,
+        departmentId,
+        isGraduateLevel: isGraduateLevel || false
     }).returning();
 
     res.status(201).json(course[0]);
@@ -73,7 +65,7 @@ const createCourse = asyncHandler(async (req, res) => {
 // @access  Private/Admin
 const updateCourse = asyncHandler(async (req, res) => {
     const courseId = parseInt(req.params.id);
-    const { name, code, description, credits, departmentId } = req.body;
+    const { title, description, units, departmentId, isGraduateLevel } = req.body;
 
     const existingCourse = await db.query.courses.findFirst({
         where: eq(courses.id, courseId)
@@ -86,11 +78,11 @@ const updateCourse = asyncHandler(async (req, res) => {
 
     const updatedCourse = await db.update(courses)
         .set({
-            name: name || existingCourse.name,
-            code: code || existingCourse.code,
+            title: title || existingCourse.title,
             description: description || existingCourse.description,
-            credits: credits || existingCourse.credits,
-            departmentId: departmentId || existingCourse.departmentId
+            units: units || existingCourse.units,
+            departmentId: departmentId || existingCourse.departmentId,
+            isGraduateLevel: isGraduateLevel !== undefined ? isGraduateLevel : existingCourse.isGraduateLevel
         })
         .where(eq(courses.id, courseId))
         .returning();
@@ -104,6 +96,7 @@ const updateCourse = asyncHandler(async (req, res) => {
 const deleteCourse = asyncHandler(async (req, res) => {
     const courseId = parseInt(req.params.id);
 
+    // First check if course exists
     const existingCourse = await db.query.courses.findFirst({
         where: eq(courses.id, courseId)
     });
@@ -113,6 +106,11 @@ const deleteCourse = asyncHandler(async (req, res) => {
         throw new Error('Course not found');
     }
 
+    // Delete related records first
+    await db.delete(courseQualifiedFaculty).where(eq(courseQualifiedFaculty.courseId, courseId));
+    await db.delete(scheduledCourses).where(eq(scheduledCourses.courseId, courseId));
+    
+    // Then delete the course
     await db.delete(courses).where(eq(courses.id, courseId));
 
     res.status(200).json({ message: 'Course deleted successfully' });

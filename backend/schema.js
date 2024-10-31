@@ -387,6 +387,8 @@ module.exports = {
     studentNotes,
     studentNotesRelations,
     transferCredits,
+    transferCreditsRelations,
+    
 
 
 };
