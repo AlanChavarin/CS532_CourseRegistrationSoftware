@@ -7,7 +7,7 @@ const { eq } = require('drizzle-orm')
 // @route   GET /api/majors
 // @access  Public
 const getMajors = asyncHandler(async (req, res) => {
-  const allMajors = await db.select().from(majors).leftJoin(departments, eq(majors.departmentId, departments.id))
+  const allMajors = await db.select().from(majors)
   res.status(200).json(allMajors)
 })
 
