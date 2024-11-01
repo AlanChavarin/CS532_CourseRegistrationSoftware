@@ -1,0 +1,1 @@
+ALTER TABLE "scheduled_courses" ADD COLUMN "semester" "semester" NOT NULL;

@@ -6,16 +6,16 @@ const {getMajors, getMajor, createMajor, updateMajor, deleteMajor} = require('..
 router.get('/', getMajors)
 
 // Get a single major
-router.get('/:majorid', getMajor)
+router.get('/:majorId', getMajor)
 
 // Create a new major
 router.post('/', createMajor)
 
 // Update a major
-router.put('/:majorid', updateMajor)
+router.put('/:majorId', updateMajor)
 
 // Delete a major
-router.delete('/:majorid', deleteMajor)
+router.delete('/:majorId', deleteMajor)
 
 module.exports = router
 

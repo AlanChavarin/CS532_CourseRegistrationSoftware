@@ -10,7 +10,7 @@ const getCourses = asyncHandler(async (req, res) => {
 
     const allCourses = await db.query.courses.findMany();
     res.status(200).json(allCourses);
-    
+
 })
 
 // @desc    Get single course
@@ -18,7 +18,7 @@ const getCourses = asyncHandler(async (req, res) => {
 // @access  Public
 const getCourse = asyncHandler(async (req, res) => {
     const course = await db.query.courses.findFirst({
-        where: eq(courses.id, parseInt(req.params.id)),
+        where: eq(courses.id, parseInt(req.params.courseId)),
         with: {
             department: true,
             scheduledCourses: true,
@@ -64,7 +64,7 @@ const createCourse = asyncHandler(async (req, res) => {
 // @route   PUT /api/courses/:id
 // @access  Private/Admin
 const updateCourse = asyncHandler(async (req, res) => {
-    const courseId = parseInt(req.params.id);
+    const courseId = parseInt(req.params.courseId);
     const { title, description, units, departmentId, isGraduateLevel } = req.body;
 
     const existingCourse = await db.query.courses.findFirst({
@@ -94,7 +94,7 @@ const updateCourse = asyncHandler(async (req, res) => {
 // @route   DELETE /api/courses/:id
 // @access  Private/Admin
 const deleteCourse = asyncHandler(async (req, res) => {
-    const courseId = parseInt(req.params.id);
+    const courseId = parseInt(req.params.courseId);
 
     // First check if course exists
     const existingCourse = await db.query.courses.findFirst({

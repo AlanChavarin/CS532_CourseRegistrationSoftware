@@ -15,12 +15,12 @@ router.route('/').get(getStudentNotes)
 router.route('/').post(createStudentNote)
 
 // Get a single student note
-router.route('/:id').get(getStudentNote)
+router.route('/:studentNoteId').get(getStudentNote)
 
 // Update a student note
-router.route('/:id').put(updateStudentNote)
+router.route('/:studentNoteId').put(updateStudentNote)
 
 // Delete a student note
-router.route('/:id').delete(deleteStudentNote)
+router.route('/:studentNoteId').delete(deleteStudentNote)
 
 module.exports = router

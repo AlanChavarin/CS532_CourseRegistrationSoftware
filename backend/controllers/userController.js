@@ -16,7 +16,7 @@ const getUsers = asyncHandler(async (req, res) => {
 // @access  Public
 const getUser = asyncHandler(async (req, res) => {
     const user = await db.query.users.findFirst({
-        where: eq(users.id, parseInt(req.params.id))
+        where: eq(users.id, parseInt(req.params.userId))
     });
 
     if (!user) {
@@ -31,11 +31,11 @@ const getUser = asyncHandler(async (req, res) => {
 // @route   POST /api/users
 // @access  Public
 const createUser = asyncHandler(async (req, res) => {
-    const { name, email, password } = req.body;
+    const { username, email, password, userType } = req.body;
 
-    if (!name || !email || !password) {
+    if (!username || !email || !password || !userType) {
         res.status(400);
-        throw new Error('Please provide name, email, and password');
+        throw new Error('Please provide username, email, and password');
     }
 
     // Check if user with email already exists
@@ -49,9 +49,10 @@ const createUser = asyncHandler(async (req, res) => {
     }
 
     const newUser = await db.insert(users).values({
-        name,
+        username,
         email,
-        password
+        password,
+        userType
     }).returning();
 
     res.status(201).json(newUser[0]);
@@ -90,19 +91,9 @@ const loginUser = asyncHandler(async (req, res) => {
 // @route   PUT /api/users/:id
 // @access  Private
 const updateUser = asyncHandler(async (req, res) => {
-    const { name, email } = req.body;
-
-    if (!name || !email) {
-        res.status(400);
-        throw new Error('Please provide name and email');
-    }
-
     const updatedUser = await db.update(users)
-        .set({
-            name,
-            email
-        })
-        .where(eq(users.id, parseInt(req.params.id)))
+        .set(req.body)
+        .where(eq(users.id, parseInt(req.params.userId)))
         .returning();
 
     if (!updatedUser.length) {
@@ -118,7 +109,7 @@ const updateUser = asyncHandler(async (req, res) => {
 // @access  Private
 const deleteUser = asyncHandler(async (req, res) => {
     const deletedUser = await db.delete(users)
-        .where(eq(users.id, parseInt(req.params.id)))
+        .where(eq(users.id, parseInt(req.params.userId)))
         .returning();
 
     if (!deletedUser.length) {

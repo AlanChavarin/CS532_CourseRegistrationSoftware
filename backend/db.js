@@ -1,6 +1,7 @@
 const { drizzle } = require('drizzle-orm/node-postgres')
 const { Pool } = require('pg')
 const dotenv = require('dotenv')
+const schema = require('./schema')
 
 dotenv.config()
 
@@ -10,6 +11,6 @@ const pool = new Pool({
 })
 
 // Create drizzle database instance
-const db = drizzle(pool)
+const db = drizzle(pool, { schema })
 
 module.exports = { db, pool }

@@ -7,15 +7,7 @@ const { eq } = require('drizzle-orm')
 // @route   GET /api/faculty
 // @access  Public
 const getFaculty = asyncHandler(async (req, res) => {
-  const allFaculty = await db.query.faculty.findMany({
-    with: {
-      departments: {
-        with: {
-          department: true
-        }
-      }
-    }
-  })
+  const allFaculty = await db.query.faculty.findMany()
   res.status(200).json(allFaculty)
 })
 
@@ -46,28 +38,30 @@ const getFacultyMember = asyncHandler(async (req, res) => {
 // @route   POST /api/faculty
 // @access  Private/Admin
 const createFacultyMember = asyncHandler(async (req, res) => {
-  const { name, email, officeLocation, phoneNumber } = req.body
+  const { name, positionTitle, phoneNumber, officeNumber, mainDepartment, userId  } = req.body
 
-  if (!name || !email) {
+  if (!name || !userId) {
     res.status(400)
-    throw new Error('Please provide name and email for the faculty member')
+    throw new Error('Please provide name and userId for the faculty member')
   }
 
   // Check if faculty with email already exists
   const existingFaculty = await db.query.faculty.findFirst({
-    where: eq(faculty.email, email)
+    where: eq(faculty.userId, userId)
   })
 
   if (existingFaculty) {
     res.status(400)
-    throw new Error('Faculty member with this email already exists')
+    throw new Error('Faculty member with this userId already exists')
   }
 
   const newFaculty = await db.insert(faculty).values({
     name,
-    email,
-    officeLocation,
-    phoneNumber
+    positionTitle,
+    phoneNumber,
+    officeNumber,
+    mainDepartment,
+    userId
   }).returning()
 
   res.status(201).json(newFaculty[0])
@@ -78,7 +72,7 @@ const createFacultyMember = asyncHandler(async (req, res) => {
 // @access  Private/Admin
 const updateFacultyMember = asyncHandler(async (req, res) => {
   const facultyId = parseInt(req.params.id)
-  const { name, email, officeLocation, phoneNumber } = req.body
+  const { name, positionTitle, phoneNumber, officeNumber, mainDepartment, userId } = req.body
 
   const existingFaculty = await db.query.faculty.findFirst({
     where: eq(faculty.id, facultyId)
@@ -90,23 +84,24 @@ const updateFacultyMember = asyncHandler(async (req, res) => {
   }
 
   // Check if updating email and if it conflicts with another faculty
-  if (email && email !== existingFaculty.email) {
-    const emailExists = await db.query.faculty.findFirst({
-      where: eq(faculty.email, email)
+  if (userId && userId !== existingFaculty.userId) {
+    const userIdExists = await db.query.faculty.findFirst({
+      where: eq(faculty.userId, userId)
     })
 
     if (emailExists) {
       res.status(400)
-      throw new Error('Email already in use by another faculty member')
+      throw new Error('UserId already in use by another faculty member')
     }
   }
 
   const updatedFaculty = await db.update(faculty)
     .set({
       name: name || existingFaculty.name,
-      email: email || existingFaculty.email,
-      officeLocation: officeLocation || existingFaculty.officeLocation,
-      phoneNumber: phoneNumber || existingFaculty.phoneNumber
+      positionTitle: positionTitle || existingFaculty.positionTitle,
+      phoneNumber: phoneNumber || existingFaculty.phoneNumber,
+      officeNumber: officeNumber || existingFaculty.officeNumber,
+      mainDepartment: mainDepartment || existingFaculty.mainDepartment
     })
     .where(eq(faculty.id, facultyId))
     .returning()

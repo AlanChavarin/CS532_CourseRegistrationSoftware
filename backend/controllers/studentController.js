@@ -7,11 +7,7 @@ const { eq } = require('drizzle-orm')
 // @route   GET /api/students
 // @access  Public
 const getStudents = asyncHandler(async (req, res) => {
-    const allStudents = await db.query.students.findMany({
-        with: {
-            major: true
-        }
-    });
+    const allStudents = await db.query.students.findMany();
     res.status(200).json(allStudents);
 });
 
@@ -20,10 +16,7 @@ const getStudents = asyncHandler(async (req, res) => {
 // @access  Public
 const getStudent = asyncHandler(async (req, res) => {
     const student = await db.query.students.findFirst({
-        where: eq(students.id, parseInt(req.params.id)),
-        with: {
-            major: true
-        }
+        where: eq(students.id, parseInt(req.params.studentId)),
     });
 
     if (!student) {
@@ -38,16 +31,16 @@ const getStudent = asyncHandler(async (req, res) => {
 // @route   POST /api/students
 // @access  Private/Admin
 const createStudent = asyncHandler(async (req, res) => {
-    const { name, email, majorId } = req.body;
+    const { name, majorId, minorId, userId, GPA, address, dateOfBirth } = req.body;
 
-    if (!name || !email || !majorId) {
+    if (!name || !majorId || !userId) {
         res.status(400);
-        throw new Error('Please provide name, email, and majorId for the student');
+        throw new Error('Please provide name, userId, and majorId for the student');
     }
 
     // Check if student with email already exists
     const existingStudent = await db.query.students.findFirst({
-        where: eq(students.email, email)
+        where: eq(students.userId, userId)
     });
 
     if (existingStudent) {
@@ -57,8 +50,12 @@ const createStudent = asyncHandler(async (req, res) => {
 
     const newStudent = await db.insert(students).values({
         name,
-        email,
-        majorId
+        majorId,
+        minorId,
+        userId,
+        GPA,
+        address,
+        dateOfBirth
     }).returning();
 
     res.status(201).json(newStudent[0]);
@@ -68,10 +65,11 @@ const createStudent = asyncHandler(async (req, res) => {
 // @route   PUT /api/students/:id
 // @access  Private/Admin
 const updateStudent = asyncHandler(async (req, res) => {
-    const { name, email, majorId } = req.body;
+
+    console.log(req.body)
 
     const student = await db.query.students.findFirst({
-        where: eq(students.id, parseInt(req.params.id))
+        where: eq(students.id, parseInt(req.params.studentId))
     });
 
     if (!student) {
@@ -80,12 +78,8 @@ const updateStudent = asyncHandler(async (req, res) => {
     }
 
     const updatedStudent = await db.update(students)
-        .set({
-            name: name || student.name,
-            email: email || student.email,
-            majorId: majorId || student.majorId
-        })
-        .where(eq(students.id, parseInt(req.params.id)))
+        .set(req.body)
+        .where(eq(students.id, parseInt(req.params.studentId)))
         .returning();
 
     res.status(200).json(updatedStudent[0]);
@@ -96,7 +90,7 @@ const updateStudent = asyncHandler(async (req, res) => {
 // @access  Private/Admin
 const deleteStudent = asyncHandler(async (req, res) => {
     const student = await db.query.students.findFirst({
-        where: eq(students.id, parseInt(req.params.id))
+        where: eq(students.id, parseInt(req.params.studentId))
     });
 
     if (!student) {
@@ -105,9 +99,9 @@ const deleteStudent = asyncHandler(async (req, res) => {
     }
 
     await db.delete(students)
-        .where(eq(students.id, parseInt(req.params.id)));
+        .where(eq(students.id, parseInt(req.params.studentId)));
 
-    res.status(200).json({ message: `Student with id ${req.params.id} deleted successfully` });
+    res.status(200).json({ message: `Student with id ${req.params.studentId} deleted successfully` });
 });
 
 module.exports = {

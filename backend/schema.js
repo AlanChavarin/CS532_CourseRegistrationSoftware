@@ -2,11 +2,12 @@ const { pgTable, serial, varchar, text, boolean, integer, uuid, jsonb, pgEnum, p
 const { relations } = require('drizzle-orm');
 const weekDayEnum = pgEnum('week_day', ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']);
 const userTypeEnum = pgEnum('user_type', ['faculty', 'student']);
+const semesterEnum = pgEnum('semester', ['Fall', 'Spring', 'Summer', 'Winter']);
 
 const majors = pgTable('majors', {
   id: serial('id').primaryKey(),
   title: varchar('title', { length: 255 }).notNull(),
-  department: varchar('department', { length: 100 }).notNull(),
+  departmentId: integer('department_id').references(() => departments.id),
   description: text('description')
 });
 
@@ -36,7 +37,6 @@ const users = pgTable('users', {
   studentId: integer('student_id').references(() => students.id)
 });
 
-
 const students = pgTable('students', {
   id: serial('id').primaryKey(),
   name: varchar('name', { length: 255 }).notNull(),
@@ -44,7 +44,6 @@ const students = pgTable('students', {
   dateOfBirth: varchar('date_of_birth', { length: 10 }),
   majorId: integer('major_id').references(() => majors.id).notNull(),
   minorId: integer('minor_id').references(() => majors.id),
-  notes: text('notes'),
   userId: integer('user_id').references(() => users.id).notNull(),
   GPA: real('gpa').notNull().default(0.0)
 });
@@ -69,13 +68,13 @@ const faculty = pgTable('faculty', {
 
 const scheduledCourses = pgTable('scheduled_courses', {
   id: serial('id').primaryKey(),
-  scheduleNumber: varchar('schedule_number', { length: 20 }).notNull().unique(),
+  //scheduleNumber: varchar('schedule_number', { length: 20 }).notNull().unique(),
   instructorId: integer('instructor_id').references(() => faculty.id).notNull(),
   courseId: integer('course_id').references(() => courses.id).notNull(),
   location: varchar('location', { length: 100 }).notNull(),
   seats: integer('seats').notNull().default(0),
   availableSeats: integer('available_seats').notNull().default(0),
-  semester: varchar('semester', { length: 20 }).notNull(),
+  semester: semesterEnum('semester').notNull(),
   year: integer('year').notNull()
 });
 
@@ -92,11 +91,11 @@ const transferCredits = pgTable('transfer_credits', {
   id: serial('id').primaryKey(),
   courseId: integer('course_id').references(() => courses.id),
   studentId: integer('student_id').references(() => students.id),
-  university_name: varchar('university_name', { length: 255 }).notNull(),
-  university_location: varchar('university_location', { length: 255 }).notNull(),
-  original_course_code: varchar('original_course_code', { length: 255 }).notNull(),
+  universityName: varchar('university_name', { length: 255 }).notNull(),
+  universityLocation: varchar('university_location', { length: 255 }).notNull(),
+  originalCourseCode: varchar('original_course_code', { length: 255 }).notNull(),
   grade: varchar('grade', { length: 2 }).notNull(),
-  semester: varchar('semester', { length: 20 }).notNull(),
+  semester: semesterEnum('semester').notNull(),
   year: integer('year').notNull()
 });
 
@@ -144,12 +143,16 @@ const courseMajorsRelations = relations(courseMajors, ({ one }) => ({
 
 }));
 
-const majorRelations = relations(majors, ({ many }) => ({
+const majorRelations = relations(majors, ({ many, one }) => ({
   studentsWithMajor: many(students, { relationName: "studentMajor" }),
   studentsWithMinor: many(students, { relationName: "studentMinor" }),
   majorFaculty: many(majorFaculty),
   courseMajors: many(courseMajors),
-  majorRequirements: many(majorRequirements)
+  majorRequirements: many(majorRequirements),
+  department: one(departments, {
+    fields: [majors.departmentId],
+    references: [departments.id]
+  })
 }));
 
 const courseRelations = relations(courses, ({ many, one }) => ({
@@ -388,7 +391,7 @@ module.exports = {
     studentNotesRelations,
     transferCredits,
     transferCreditsRelations,
-    
+    semesterEnum
 
 
 };

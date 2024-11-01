@@ -58,10 +58,9 @@ const createStudentNote = asyncHandler(async (req, res) => {
 // @route   PUT /api/student-notes/:id
 // @access  Private/Admin
 const updateStudentNote = asyncHandler(async (req, res) => {
-  const { note, date } = req.body
   
   const existingNote = await db.query.studentNotes.findFirst({
-    where: eq(studentNotes.id, parseInt(req.params.id))
+    where: eq(studentNotes.id, parseInt(req.params.studentNoteId))
   })
 
   if (!existingNote) {
@@ -70,11 +69,8 @@ const updateStudentNote = asyncHandler(async (req, res) => {
   }
 
   const updatedNote = await db.update(studentNotes)
-    .set({
-      note: note || existingNote.note,
-      date: date || existingNote.date
-    })
-    .where(eq(studentNotes.id, parseInt(req.params.id)))
+    .set(req.body)
+    .where(eq(studentNotes.id, parseInt(req.params.studentNoteId)))
     .returning()
 
   res.status(200).json(updatedNote[0])
@@ -85,7 +81,7 @@ const updateStudentNote = asyncHandler(async (req, res) => {
 // @access  Private/Admin
 const deleteStudentNote = asyncHandler(async (req, res) => {
   const existingNote = await db.query.studentNotes.findFirst({
-    where: eq(studentNotes.id, parseInt(req.params.id))
+    where: eq(studentNotes.id, parseInt(req.params.studentNoteId))
   })
 
   if (!existingNote) {
@@ -93,9 +89,9 @@ const deleteStudentNote = asyncHandler(async (req, res) => {
     throw new Error('Note not found')
   }
 
-  await db.delete(studentNotes).where(eq(studentNotes.id, parseInt(req.params.id)))
+  await db.delete(studentNotes).where(eq(studentNotes.id, parseInt(req.params.studentNoteId)))
 
-  res.status(200).json({ id: parseInt(req.params.id) })
+  res.status(200).json({ id: parseInt(req.params.studentNoteId) })
 })
 
 module.exports = {

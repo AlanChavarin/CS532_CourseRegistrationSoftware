@@ -12,15 +12,15 @@ const {
 router.get('/', getCourses);
 
 // Get a single course
-router.get('/:courseid', getCourse);
+router.get('/:courseId', getCourse);
 
 // Create a new course
 router.post('/', createCourse);
 
 // Update a course
-router.put('/:courseid', updateCourse);
+router.put('/:courseId', updateCourse);
 
 // Delete a course
-router.delete('/:courseid', deleteCourse);
+router.delete('/:courseId', deleteCourse);
 
 module.exports = router;

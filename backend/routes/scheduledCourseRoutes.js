@@ -12,15 +12,15 @@ const {
 router.get('/', getScheduledCourses);
 
 // Get a single scheduled course
-router.get('/:scheduledCourseid', getScheduledCourse);
+router.get('/:scheduledCourseId', getScheduledCourse);
 
 // Create a new scheduled course
 router.post('/', createScheduledCourse);
 
 // Update a scheduled course
-router.put('/:scheduledCourseid', updateScheduledCourse);
+router.put('/:scheduledCourseId', updateScheduledCourse);
 
 // Delete a scheduled course
-router.delete('/:scheduledCourseid', deleteScheduledCourse);
+router.delete('/:scheduledCourseId', deleteScheduledCourse);
 
 module.exports = router;

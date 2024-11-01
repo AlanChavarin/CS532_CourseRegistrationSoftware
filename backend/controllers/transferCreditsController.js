@@ -43,15 +43,15 @@ const createTransferCredit = asyncHandler(async (req, res) => {
   const { 
     courseId, 
     studentId, 
-    university_name,
-    university_location,
-    original_course_code,
+    universityName,
+    universityLocation,
+    originalCourseCode,
     grade,
     semester,
     year
   } = req.body
 
-  if (!courseId || !studentId || !university_name || !university_location || !original_course_code || !grade || !semester || !year) {
+  if (!courseId || !studentId || !universityName || !universityLocation || !originalCourseCode || !grade || !semester || !year) {
     res.status(400)
     throw new Error('Please provide all required fields')
   }
@@ -59,9 +59,9 @@ const createTransferCredit = asyncHandler(async (req, res) => {
   const newTransferCredit = await db.insert(transferCredits).values({
     courseId,
     studentId,
-    university_name,
-    university_location,
-    original_course_code,
+    universityName,
+    universityLocation,
+    originalCourseCode,
     grade,
     semester,
     year
@@ -74,16 +74,6 @@ const createTransferCredit = asyncHandler(async (req, res) => {
 // @route   PUT /api/transfer-credits/:id
 // @access  Private/Admin
 const updateTransferCredit = asyncHandler(async (req, res) => {
-  const { 
-    courseId, 
-    studentId, 
-    university_name,
-    university_location,
-    original_course_code,
-    grade,
-    semester,
-    year
-  } = req.body
   
   const existingTransferCredit = await db.query.transferCredits.findFirst({
     where: eq(transferCredits.id, parseInt(req.params.id))
@@ -95,16 +85,7 @@ const updateTransferCredit = asyncHandler(async (req, res) => {
   }
 
   const updatedTransferCredit = await db.update(transferCredits)
-    .set({
-      courseId: courseId || existingTransferCredit.courseId,
-      studentId: studentId || existingTransferCredit.studentId,
-      university_name: university_name || existingTransferCredit.university_name,
-      university_location: university_location || existingTransferCredit.university_location,
-      original_course_code: original_course_code || existingTransferCredit.original_course_code,
-      grade: grade || existingTransferCredit.grade,
-      semester: semester || existingTransferCredit.semester,
-      year: year || existingTransferCredit.year
-    })
+    .set(req.body)
     .where(eq(transferCredits.id, parseInt(req.params.id)))
     .returning()
 

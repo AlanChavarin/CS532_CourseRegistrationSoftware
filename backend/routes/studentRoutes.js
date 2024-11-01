@@ -12,15 +12,15 @@ const {
 router.get('/', getStudents);
 
 // Get a single student
-router.get('/:studentid', getStudent);
+router.get('/:studentId', getStudent);
 
 // Create a new student
 router.post('/', createStudent);
 
 // Update a student
-router.put('/:studentid', updateStudent);
+router.put('/:studentId', updateStudent);
 
 // Delete a student
-router.delete('/:studentid', deleteStudent);
+router.delete('/:studentId', deleteStudent);
 
 module.exports = router;

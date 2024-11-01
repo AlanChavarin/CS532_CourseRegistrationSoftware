@@ -7,7 +7,11 @@ const { eq } = require('drizzle-orm')
 // @route   GET /api/majors
 // @access  Public
 const getMajors = asyncHandler(async (req, res) => {
-  const allMajors = await db.select().from(majors)
+  const allMajors = await db.query.majors.findMany({
+    with: {
+      department: true,
+    }
+  })
   res.status(200).json(allMajors)
 })
 
@@ -15,10 +19,17 @@ const getMajors = asyncHandler(async (req, res) => {
 // @route   GET /api/majors/:id
 // @access  Public
 const getMajor = asyncHandler(async (req, res) => {
+  const majorId = Number(req.params.majorId)
+
+  if (isNaN(majorId)) {
+    res.status(400)
+    throw new Error('Invalid major ID format')
+  }
+
   const major = await db.query.majors.findFirst({
-    where: eq(majors.id, parseInt(req.params.id)),
+    where: eq(majors.id, majorId),
     with: {
-      departments: true
+      department: true,
     }
   })
 
@@ -34,15 +45,16 @@ const getMajor = asyncHandler(async (req, res) => {
 // @route   POST /api/majors
 // @access  Private/Admin
 const createMajor = asyncHandler(async (req, res) => {
-  const { name, description } = req.body
+  const { title, departmentId, description } = req.body
 
-  if (!name) {
+  if (!title) {
     res.status(400)
-    throw new Error('Please provide a name for the major')
+    throw new Error('Please provide a title for the major')
   }
 
   const major = await db.insert(majors).values({
-    name,
+    title,
+    departmentId,
     description: description || null
   }).returning()
 
@@ -53,10 +65,9 @@ const createMajor = asyncHandler(async (req, res) => {
 // @route   PUT /api/majors/:id
 // @access  Private/Admin
 const updateMajor = asyncHandler(async (req, res) => {
-  const { name, description } = req.body
 
   const major = await db.query.majors.findFirst({
-    where: eq(majors.id, parseInt(req.params.id))
+    where: eq(majors.id, parseInt(req.params.majorId))
   })
 
   if (!major) {
@@ -64,17 +75,9 @@ const updateMajor = asyncHandler(async (req, res) => {
     throw new Error('Major not found')
   }
 
-  if (!name) {
-    res.status(400)
-    throw new Error('Please provide a name for the major')
-  }
-
   const updatedMajor = await db.update(majors)
-    .set({
-      name,
-      description: description || major.description
-    })
-    .where(eq(majors.id, parseInt(req.params.id)))
+    .set(req.body)
+    .where(eq(majors.id, parseInt(req.params.majorId)))
     .returning()
 
   res.status(200).json(updatedMajor[0])
@@ -85,7 +88,7 @@ const updateMajor = asyncHandler(async (req, res) => {
 // @access  Private/Admin
 const deleteMajor = asyncHandler(async (req, res) => {
   const major = await db.query.majors.findFirst({
-    where: eq(majors.id, parseInt(req.params.id))
+    where: eq(majors.id, parseInt(req.params.majorId))
   })
 
   if (!major) {
@@ -94,7 +97,7 @@ const deleteMajor = asyncHandler(async (req, res) => {
   }
 
   await db.delete(majors)
-    .where(eq(majors.id, parseInt(req.params.id)))
+    .where(eq(majors.id, parseInt(req.params.majorId)))
 
   res.status(200).json({ message: 'Major deleted successfully' })
 })

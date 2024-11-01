@@ -6,7 +6,7 @@ const {
   createDate,
   updateDate,
   deleteDate
-} = require('../controllers/datesController')
+} = require('../controllers/dateController')
 
 router.route('/').get(getDates)
 router.route('/').post(createDate)

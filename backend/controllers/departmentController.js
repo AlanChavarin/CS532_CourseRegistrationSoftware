@@ -22,7 +22,7 @@ const getDepartments = asyncHandler(async (req, res) => {
 // @access  Public
 const getDepartment = asyncHandler(async (req, res) => {
   const department = await db.query.departments.findFirst({
-    where: eq(departments.id, parseInt(req.params.id)),
+    where: eq(departments.id, parseInt(req.params.departmentId)),
     with: {
       headFaculty: true,
       faculty: true,
@@ -63,7 +63,7 @@ const createDepartment = asyncHandler(async (req, res) => {
 // @access  Private/Admin
 const updateDepartment = asyncHandler(async (req, res) => {
   const department = await db.query.departments.findFirst({
-    where: eq(departments.id, parseInt(req.params.id))
+    where: eq(departments.id, parseInt(req.params.departmentId))
   })
 
   if (!department) {
@@ -73,7 +73,7 @@ const updateDepartment = asyncHandler(async (req, res) => {
 
   const updatedDepartment = await db.update(departments)
     .set(req.body)
-    .where(eq(departments.id, parseInt(req.params.id)))
+    .where(eq(departments.id, parseInt(req.params.departmentId)))
     .returning()
 
   res.status(200).json(updatedDepartment[0])
@@ -84,7 +84,7 @@ const updateDepartment = asyncHandler(async (req, res) => {
 // @access  Private/Admin
 const deleteDepartment = asyncHandler(async (req, res) => {
   const department = await db.query.departments.findFirst({
-    where: eq(departments.id, parseInt(req.params.id))
+    where: eq(departments.id, parseInt(req.params.departmentId))
   })
 
   if (!department) {
@@ -92,16 +92,16 @@ const deleteDepartment = asyncHandler(async (req, res) => {
     throw new Error('Department not found')
   }
 
-  await db.delete(departments).where(eq(departments.id, parseInt(req.params.id)))
+  await db.delete(departments).where(eq(departments.id, parseInt(req.params.departmentId)))
 
-  res.status(200).json({ id: req.params.id })
+  res.status(200).json({ id: req.params.departmentId })
 })
 
 // @desc    Add faculty to department
 // @route   POST /api/departments/:id/faculty/:facultyId
 // @access  Private/Admin
 const addFacultyToDepartment = asyncHandler(async (req, res) => {
-  const departmentId = parseInt(req.params.id)
+  const departmentId = parseInt(req.params.departmentId)
   const facultyId = parseInt(req.params.facultyId)
 
   // Check if department exists
@@ -150,7 +150,7 @@ const addFacultyToDepartment = asyncHandler(async (req, res) => {
 // @route   DELETE /api/departments/:id/faculty/:facultyId
 // @access  Private/Admin
 const removeFacultyFromDepartment = asyncHandler(async (req, res) => {
-  const departmentId = parseInt(req.params.id)
+  const departmentId = parseInt(req.params.departmentId)
   const facultyId = parseInt(req.params.facultyId)
 
   const relation = await db.query.facultyDepartmentsInvolvedIn.findFirst({
