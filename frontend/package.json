@@ -17,6 +17,7 @@
     "react-dom": "^18.2.0"
   },
   "devDependencies": {
+    "@types/node": "22.9.1",
     "@types/react-fontawesome": "^1.6.8",
     "eslint": "^8",
     "eslint-config-next": "15.0.3",

@@ -8,6 +8,8 @@ const { eq } = require('drizzle-orm')
 // @access  Public
 const getCourses = asyncHandler(async (req, res) => {
 
+    console.log(req.query.searchTerm)
+
     const allCourses = await db.query.courses.findMany();
     res.status(200).json(allCourses);
 
