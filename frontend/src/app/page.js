@@ -2,6 +2,15 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faUser, faBook, faGraduationCap, faComputer, faDashboard } from "@fortawesome/free-solid-svg-icons";
 import Link from "next/link";
+import LinkMenu from "./helperComponents/LinkMenu";
+
+const linkComponentDataArray = [
+  {link: "/studentlogin", icon: faGraduationCap, name: "Student Login"},
+  {link: "/facultyadminlogin", icon: faUser, name: "Faculty/Admin Login"},
+  {link: "/courses", icon: faBook, name: "View Courses"},
+  {link: "/admindashboard", icon: faDashboard, name: "Admin Dashboard"}
+]
+
 export default function Home() {
   return (
     <div className="flex-1 flex flex-col items-center justify-start p-4 sm:p-8 md:p-[128px]">
@@ -13,32 +22,37 @@ export default function Home() {
         </h1>
         <FontAwesomeIcon icon={faComputer} className="text-[100px] md:text-[160px]"/>
       </div>
-      <div className="flex flex-col md:flex-row items-stretch justify-center gap-[16px] w-full max-w-[1000px] flex-wrap">
-        <Link href="/studentlogin" className="flex flex-1 items-center justify-centers gap-[16px] text-[20px] md:text-[24px] hover:text-gray-400 cursor-pointer flex-col p-6 hover:p-8 rounded-lg border-[2px] border-black hover:border-gray-400 w-full md:min-w-[250px] transition-all duration-300">
-            <FontAwesomeIcon icon={faGraduationCap} className="text-[48px] md:text-[64px]"/>
-            <div className="text-center whitespace-nowrap">
-              Student Login
-            </div>
-        </Link>
-        <Link href="/facultyadminlogin" className="flex flex-1 items-center justify-center gap-[16px] text-[20px] md:text-[24px] hover:text-gray-400 cursor-pointer flex-col p-6 hover:p-8 rounded-lg border-[2px] border-black hover:border-gray-400 w-full md:min-w-[250px] transition-all duration-300">
-            <FontAwesomeIcon icon={faUser} className="text-[48px] md:text-[64px]"/>
-            <div className="text-center whitespace-nowrap">
-              Faculty/Admin Login
-            </div>
-        </Link>
-        <Link href="/courses" className="flex flex-1 items-center justify-center gap-[16px] text-[20px] md:text-[24px] hover:text-gray-400 cursor-pointer flex-col p-6 hover:p-8 rounded-lg border-[2px] border-black hover:border-gray-400 w-full md:min-w-[250px] transition-all duration-300">
-            <FontAwesomeIcon icon={faBook} className="text-[48px] md:text-[64px]"/>
-            <div className="text-center whitespace-nowrap">
-              View Courses
-            </div>
-        </Link>
-        <Link href="/admindashboard" className="flex flex-1 items-center justify-center gap-[16px] text-[20px] md:text-[24px] hover:text-gray-400 cursor-pointer flex-col p-6 hover:p-8 rounded-lg border-[2px] border-black hover:border-gray-400 w-full md:min-w-[250px] transition-all duration-300">
-            <FontAwesomeIcon icon={faDashboard} className="text-[48px] md:text-[64px]"/>
-            <div className="text-center whitespace-nowrap">
-              Admin Dashboard
-            </div>
-        </Link>
-      </div>
+      <LinkMenu linkComponentDataArray={linkComponentDataArray} />
     </div>
   );
 }
+
+
+
+
+{/* <div className="flex flex-col md:flex-row items-stretch justify-center gap-[16px] w-full max-w-[1000px] flex-wrap">
+<Link href="/studentlogin" className="flex flex-1 items-center justify-centers gap-[16px] text-[20px] md:text-[24px] hover:text-gray-400 cursor-pointer flex-col p-6 hover:p-8 rounded-lg border-[2px] border-black hover:border-gray-400 w-full md:min-w-[250px] transition-all duration-300">
+    <FontAwesomeIcon icon={faGraduationCap} className="text-[48px] md:text-[64px]"/>
+    <div className="text-center whitespace-nowrap">
+      Student Login
+    </div>
+</Link>
+<Link href="/facultyadminlogin" className="flex flex-1 items-center justify-center gap-[16px] text-[20px] md:text-[24px] hover:text-gray-400 cursor-pointer flex-col p-6 hover:p-8 rounded-lg border-[2px] border-black hover:border-gray-400 w-full md:min-w-[250px] transition-all duration-300">
+    <FontAwesomeIcon icon={faUser} className="text-[48px] md:text-[64px]"/>
+    <div className="text-center whitespace-nowrap">
+      Faculty/Admin Login
+    </div>
+</Link>
+<Link href="/courses" className="flex flex-1 items-center justify-center gap-[16px] text-[20px] md:text-[24px] hover:text-gray-400 cursor-pointer flex-col p-6 hover:p-8 rounded-lg border-[2px] border-black hover:border-gray-400 w-full md:min-w-[250px] transition-all duration-300">
+    <FontAwesomeIcon icon={faBook} className="text-[48px] md:text-[64px]"/>
+    <div className="text-center whitespace-nowrap">
+      View Courses
+    </div>
+</Link>
+<Link href="/admindashboard" className="flex flex-1 items-center justify-center gap-[16px] text-[20px] md:text-[24px] hover:text-gray-400 cursor-pointer flex-col p-6 hover:p-8 rounded-lg border-[2px] border-black hover:border-gray-400 w-full md:min-w-[250px] transition-all duration-300">
+    <FontAwesomeIcon icon={faDashboard} className="text-[48px] md:text-[64px]"/>
+    <div className="text-center whitespace-nowrap">
+      Admin Dashboard
+    </div>
+</Link>
+</div> */}

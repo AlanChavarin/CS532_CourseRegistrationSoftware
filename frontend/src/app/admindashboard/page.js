@@ -1,5 +1,18 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faDashboard } from '@fortawesome/free-solid-svg-icons'
+import { faDashboard, faPlus, faBook, faUserGraduate, faUserTie } from '@fortawesome/free-solid-svg-icons'
+import LinkMenu from '../helperComponents/LinkMenu'
+
+const linkComponentDataArray = [
+    {link: "/admin/addcourse", icon: faPlus, name: "Add Course"},
+    {link: "/admin/addfaculty", icon: faPlus, name: "Add Faculty"},
+    {link: "/admin/addstudent", icon: faPlus, name: "Add Student"},
+    {link: "/admin/addmajor", icon: faPlus, name: "Add Major"},
+    {link: "/admin/addscheduledcourse", icon: faPlus, name: "Add Scheduled Course"},
+    {link: "/admin/adddepartment", icon: faPlus, name: "Add Department"},
+    {link: "/admin/viewcourses", icon: faBook, name: "View Courses"},
+    {link: "/admin/viewstudents", icon: faUserGraduate, name: "View Students"},
+    {link: "/admin/viewfaculty", icon: faUserTie, name: "View Faculty"}
+]
 
 function AdminDashboard() {
   return (
@@ -8,6 +21,7 @@ function AdminDashboard() {
             <FontAwesomeIcon icon={faDashboard} />
             <h1 className="font-bold mb-4">Admin Dashboard</h1>
         </div>
+        <LinkMenu linkComponentDataArray={linkComponentDataArray} />
     </div>
   )
 }
