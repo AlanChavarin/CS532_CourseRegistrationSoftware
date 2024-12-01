@@ -1,8 +1,10 @@
-const { pgTable, serial, varchar, text, boolean, integer, uuid, jsonb, pgEnum, primaryKey, timestamp, real } = require('drizzle-orm/pg-core');
-const { relations } = require('drizzle-orm');
+const { pgTable, serial, varchar, text, boolean, integer, uuid, jsonb, pgEnum, primaryKey, timestamp, real, index } = require('drizzle-orm/pg-core');
+const { relations, sql } = require('drizzle-orm');
 const weekDayEnum = pgEnum('week_day', ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']);
 const userTypeEnum = pgEnum('user_type', ['faculty', 'student']);
 const semesterEnum = pgEnum('semester', ['Fall', 'Spring', 'Summer', 'Winter']);
+
+
 
 const majors = pgTable('majors', {
   id: serial('id').primaryKey(),
@@ -85,6 +87,10 @@ const courses  = pgTable('courses', {
   units: integer('units').notNull(),
   departmentId: integer('department_id').references(() => departments.id),
   isGraduateLevel: boolean('is_graduate_level').notNull().default(false)
+}, (table) => {
+  return {
+    titleIdx: sql`CREATE INDEX IF NOT EXISTS courses_title_search_idx ON ${table} USING gin (to_tsvector('english', title))`
+  }
 });
 
 const transferCredits = pgTable('transfer_credits', {
@@ -98,8 +104,6 @@ const transferCredits = pgTable('transfer_credits', {
   semester: semesterEnum('semester').notNull(),
   year: integer('year').notNull()
 });
-
-
 
 // relations
 

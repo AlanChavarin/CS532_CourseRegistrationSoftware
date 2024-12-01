@@ -22,6 +22,7 @@ function CourseSearchForm({ setCourses }) {
 
     try {
       const searchParams = new URLSearchParams(formData)
+      console.log("API KEY", process.env.NEXT_PUBLIC_API_KEY)
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_KEY}courses/?${searchParams}`)
 
       if (!response.ok) {

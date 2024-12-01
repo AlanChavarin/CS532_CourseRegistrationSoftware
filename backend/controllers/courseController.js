@@ -1,18 +1,35 @@
 const asyncHandler = require('express-async-handler')
 const { db } = require('../db')
 const { courses, scheduledCourses, courseQualifiedFaculty } = require('../schema')
-const { eq } = require('drizzle-orm')
+const { eq, sql } = require('drizzle-orm')
 
 // @desc    Get all courses
 // @route   GET /api/courses
 // @access  Public
 const getCourses = asyncHandler(async (req, res) => {
+    const { searchTerm } = req.query;
 
-    console.log(req.query.searchTerm)
+    let courses;
+    
+    if (searchTerm) {
+        // Convert search term to tsquery format and handle multiple words
+        const formattedSearch = searchTerm
+            .trim()
+            .split(/\s+/)
+            .join(' & ');
 
-    const allCourses = await db.query.courses.findMany();
-    res.status(200).json(allCourses);
+        courses = await db.execute(sql`
+            SELECT * FROM courses 
+            WHERE to_tsvector('english', title) @@ to_tsquery('english', ${formattedSearch})
+            ORDER BY ts_rank(to_tsvector('english', title), to_tsquery('english', ${formattedSearch})) DESC
+        `);
 
+        courses = courses.rows;
+    } else {
+        courses = await db.query.courses.findMany();
+    }
+
+    res.status(200).json(courses);
 })
 
 // @desc    Get single course

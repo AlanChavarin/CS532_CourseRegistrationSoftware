@@ -26,7 +26,6 @@ app.use('/api/studentnotes', require('./routes/studentNoteRoutes'))
 app.use('/api/transfercredits', require('./routes/transferCreditRoutes'))
 app.use('/api/dates', require('./routes/dateRoutes'))
 
-
 app.use(errorHandler)
 
 module.exports = { db };
