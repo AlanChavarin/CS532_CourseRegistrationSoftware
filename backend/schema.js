@@ -114,6 +114,7 @@ const scheduledCourses = pgTable('scheduled_courses', {
 const courses  = pgTable('courses', {
   id: serial('id').primaryKey(),
   title: varchar('title', { length: 255 }).notNull(),
+  code: varchar('code', { length: 255 }).notNull().unique(),
   description: text('description'),
   units: integer('units').notNull(),
   departmentId: integer('department_id').references(() => departments.id),

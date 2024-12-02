@@ -1,6 +1,6 @@
 const asyncHandler = require('express-async-handler')
 const { db } = require('../db')
-const { faculty, departments, facultyDepartmentsInvolvedIn } = require('../schema')
+const { faculty, users } = require('../schema')
 const { eq, sql } = require('drizzle-orm')
 
 // @desc    Get all faculty
@@ -64,16 +64,21 @@ const getFacultyMember = asyncHandler(async (req, res) => {
 // @route   POST /api/faculty
 // @access  Private/Admin
 const createFacultyMember = asyncHandler(async (req, res) => {
-  const { name, positionTitle, phoneNumber, officeNumber, mainDepartment, userId  } = req.body
+  const { name, positionTitle, phoneNumber, officeNumber, mainDepartment, userEmail } = req.body
 
-  if (!name || !userId) {
+  //get the user from the email
+  const user = await db.query.users.findFirst({
+    where: eq(users.email, userEmail)
+  })
+
+  if (!name || !userEmail) {
     res.status(400)
-    throw new Error('Please provide name and userId for the faculty member')
+    throw new Error('Please provide name and userEmail for the faculty member')
   }
 
   // Check if faculty with email already exists
   const existingFaculty = await db.query.faculty.findFirst({
-    where: eq(faculty.userId, userId)
+    where: eq(faculty.userId, user.id)
   })
 
   if (existingFaculty) {
@@ -87,7 +92,7 @@ const createFacultyMember = asyncHandler(async (req, res) => {
     phoneNumber,
     officeNumber,
     mainDepartment,
-    userId
+    userId: user.id
   }).returning()
 
   res.status(201).json(newFaculty[0])

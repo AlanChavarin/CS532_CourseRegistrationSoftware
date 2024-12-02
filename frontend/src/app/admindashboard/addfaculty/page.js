@@ -1,19 +1,29 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faUserTie } from "@fortawesome/free-solid-svg-icons";
 
 export default function AddFaculty() {
   const [formData, setFormData] = useState({
-    firstName: "",
-    lastName: "",
+    //firstName: "",
+    //lastName: "",
+    name: "",
     positionTitle: "",
-    officePhone: "",
+    phoneNumber: "",
     officeNumber: "",
-    officeHours: "",
-    departmentId: "",
+    //officeHours: "",
+    mainDepartment: "",
+    userEmail: ""
   });
+
+  const [departments, setDepartments] = useState([])
+
+  useEffect(() => {
+    fetch(`${process.env.NEXT_PUBLIC_API_KEY}departments`)
+      .then(res => res.json())
+      .then(data => setDepartments(data))
+  }, [])
 
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
@@ -71,7 +81,7 @@ export default function AddFaculty() {
       }
 
       // Redirect to faculty view page on success
-      window.location.href = "/admindashboard/viewfaculty";
+      window.location.href = "/faculty";
     } catch (err) {
       setError(
         err.message || "Failed to create faculty member. Please try again."
@@ -96,45 +106,24 @@ export default function AddFaculty() {
             </div>
           )}
 
-          {/* Name Fields */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="flex flex-col gap-2">
-              <label
-                htmlFor="firstName"
-                className="text-sm font-semibold text-gray-600"
-              >
-                First Name*
-              </label>
-              <input
-                type="text"
-                id="firstName"
-                name="firstName"
-                value={formData.firstName}
-                onChange={handleChange}
-                className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="Enter first name"
-                required
-              />
-            </div>
-
-            <div className="flex flex-col gap-2">
-              <label
-                htmlFor="lastName"
-                className="text-sm font-semibold text-gray-600"
-              >
-                Last Name*
-              </label>
-              <input
-                type="text"
-                id="lastName"
-                name="lastName"
-                value={formData.lastName}
-                onChange={handleChange}
-                className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="Enter last name"
-                required
-              />
-            </div>
+          {/* Name Field */}
+          <div className="flex flex-col gap-2">
+            <label
+              htmlFor="name"
+              className="text-sm font-semibold text-gray-600"
+            >
+              Full Name*
+            </label>
+            <input
+              type="text"
+              id="name"
+              name="name"
+              value={formData.name}
+              onChange={handleChange}
+              className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="Enter full name"
+              required
+            />
           </div>
 
           {/* Position Information */}
@@ -160,24 +149,30 @@ export default function AddFaculty() {
 
             <div className="flex flex-col gap-2">
               <label
-                htmlFor="departmentId"
+                htmlFor="mainDepartment"
                 className="text-sm font-semibold text-gray-600"
               >
                 Department*
               </label>
-              <select
-                id="departmentId"
-                name="departmentId"
-                value={formData.departmentId}
-                onChange={handleChange}
-                className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                required
-              >
-                <option value="">Select a department</option>
-                {/* @TODO: Fetch departments from backend */}
-                <option value="1">Computer Science</option>
-                <option value="2">Mathematics</option>
-              </select>
+              {departments.length > 0 ? (
+                <select
+                  id="mainDepartment"
+                  name="mainDepartment"
+                  value={formData.mainDepartment}
+                  onChange={handleChange}
+                  className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  required
+                >
+                  <option value="">Select a department</option>
+                  {departments.map((department) => (
+                    <option key={department.id} value={department.id}>
+                      {department.name}
+                    </option>
+                  ))}
+                </select>
+              ) : (
+                <p>Finding departments....</p>
+              )}
             </div>
           </div>
 
@@ -185,16 +180,16 @@ export default function AddFaculty() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="flex flex-col gap-2">
               <label
-                htmlFor="officePhone"
+                htmlFor="phoneNumber"
                 className="text-sm font-semibold text-gray-600"
               >
                 Office Phone*
               </label>
               <input
                 type="tel"
-                id="officePhone"
-                name="officePhone"
-                value={formData.officePhone}
+                id="phoneNumber"
+                name="phoneNumber"
+                value={formData.phoneNumber}
                 onChange={handleChange}
                 className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 placeholder="Enter office phone"
@@ -222,7 +217,9 @@ export default function AddFaculty() {
             </div>
           </div>
 
-          <div className="flex flex-col gap-2">
+          {/* office hours functionality is a bit more complex, and will be implemented later */}
+
+          {/* <div className="flex flex-col gap-2">
             <label
               htmlFor="officeHours"
               className="text-sm font-semibold text-gray-600"
@@ -239,10 +236,27 @@ export default function AddFaculty() {
               placeholder="e.g., Mon/Wed 2-4pm, Tue/Thu 1-3pm"
               required
             />
-          </div>
+          </div>   */}
 
+          <div className="flex flex-col gap-2">
+            <label
+              htmlFor="userEmail"
+              className="text-sm font-semibold text-gray-600"
+            >
+              User Email*
+            </label>
+            <input
+              type="email"
+              id="userEmail"
+              name="userEmail"
+              value={formData.userEmail}
+              onChange={handleChange}
+              className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="Enter user email"
+              required
+            />
+          </div>
           <button
-            type="submit"
             disabled={isLoading}
             className="w-full px-4 py-2 text-white bg-gray-800 rounded-lg hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed font-semibold transition-colors duration-200"
           >

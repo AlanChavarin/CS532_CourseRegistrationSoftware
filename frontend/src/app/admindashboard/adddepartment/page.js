@@ -60,7 +60,7 @@ export default function AddDepartment() {
       }
 
       // Redirect to departments view page on success
-      window.location.href = "/admindashboard/viewdepartments";
+      window.location.href = "/admindashboard/departments";
     } catch (err) {
       setError(err.message || "Failed to create department. Please try again.");
     } finally {

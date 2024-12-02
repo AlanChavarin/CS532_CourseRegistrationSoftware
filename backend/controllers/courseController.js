@@ -61,7 +61,7 @@ const getCourse = asyncHandler(async (req, res) => {
 // @route   POST /api/courses
 // @access  Private/Admin
 const createCourse = asyncHandler(async (req, res) => {
-    const { title, description, units, departmentId, isGraduateLevel } = req.body;
+    const { title, description, units, code, departmentId, isGraduateLevel } = req.body;
 
     if (!title || !units || !departmentId) {
         res.status(400);
@@ -72,6 +72,7 @@ const createCourse = asyncHandler(async (req, res) => {
         title,
         description,
         units,
+        code,
         departmentId,
         isGraduateLevel: isGraduateLevel || false
     }).returning();

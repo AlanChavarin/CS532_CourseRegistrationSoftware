@@ -8,7 +8,7 @@ function Navbar() {
             <Link href="/" className="hover:text-gray-400 h-full transition-all duration-300">Home</Link>
             <Link href="/studentlogin" className="hover:text-gray-400 h-full transition-all duration-300">Student Login</Link>
             <Link href="/facultyadminlogin" className="hover:text-gray-400 h-full transition-all duration-300">Faculty/Admin Login</Link>
-            <Link href="/courses" className="hover:text-gray-400 h-full transition-all duration-300">View Courses</Link>
+            {/* <Link href="/courses" className="hover:text-gray-400 h-full transition-all duration-300">Courses</Link> */}
         </div>
         <SidebarButton />
     </nav>

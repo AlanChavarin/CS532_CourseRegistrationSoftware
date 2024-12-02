@@ -1,6 +1,6 @@
 const asyncHandler = require('express-async-handler')
 const { db } = require('../db')
-const { students } = require('../schema')
+const { students, users } = require('../schema')
 const { eq, sql } = require('drizzle-orm')
 
 // @desc    Get all students
@@ -58,16 +58,25 @@ const getStudent = asyncHandler(async (req, res) => {
 // @route   POST /api/students
 // @access  Private/Admin
 const createStudent = asyncHandler(async (req, res) => {
-    const { name, majorId, minorId, userId, GPA, address, dateOfBirth } = req.body;
+    const { name, majorId, minorId, userEmail, GPA, address, dateOfBirth } = req.body;
 
-    if (!name || !majorId || !userId) {
+    console.log("Body", req.body);
+    console.log("Major ID", majorId);
+    console.log("Minor ID", minorId);
+
+    // get the user id from the user email
+    const user = await db.query.users.findFirst({
+        where: eq(users.email, userEmail)
+    }); 
+
+    if (!name || !majorId || !userEmail) {
         res.status(400);
-        throw new Error('Please provide name, userId, and majorId for the student');
+        throw new Error('Please provide name, userEmail, and majorId for the student');
     }
 
     // Check if student with email already exists
     const existingStudent = await db.query.students.findFirst({
-        where: eq(students.userId, userId)
+        where: eq(students.userId, user.id)
     });
 
     if (existingStudent) {
@@ -77,9 +86,9 @@ const createStudent = asyncHandler(async (req, res) => {
 
     const newStudent = await db.insert(students).values({
         name,
-        majorId,
-        minorId,
-        userId,
+        majorId: majorId ? majorId : null,
+        minorId: minorId ? minorId : null,
+        userId: user.id,
         GPA,
         address,
         dateOfBirth

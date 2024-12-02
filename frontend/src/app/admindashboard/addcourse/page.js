@@ -1,18 +1,30 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBook } from "@fortawesome/free-solid-svg-icons";
 
 export default function AddCourse() {
   const [formData, setFormData] = useState({
-    courseCode: "",
-    courseTitle: "",
-    courseDescription: "",
-    courseUnits: "",
+    code: "",
+    title: "",
+    description: "",
+    units: "",
     departmentId: "",
     isGraduateLevel: false,
   });
+
+  const [departments, setDepartments] = useState([])
+
+  useEffect(() => {
+    fetch(`${process.env.NEXT_PUBLIC_API_KEY}departments`)
+      .then(res => res.json())
+      .then(data => setDepartments(data))
+  }, [])
+
+  useEffect(() => {
+    console.log(departments)
+  }, [departments])
 
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
@@ -69,7 +81,7 @@ export default function AddCourse() {
       }
 
       // Redirect to courses view page on success
-      window.location.href = "/admindashboard/courses";
+      window.location.href = "/courses";
     } catch (err) {
       setError(err.message || "Failed to create course. Please try again.");
     } finally {
@@ -94,16 +106,16 @@ export default function AddCourse() {
 
           <div className="flex flex-col gap-2">
             <label
-              htmlFor="courseCode"
+              htmlFor="code"
               className="text-sm font-semibold text-gray-600"
             >
               Course Code
             </label>
             <input
               type="text"
-              id="courseCode"
-              name="courseCode"
-              value={formData.courseCode}
+              id="code"
+              name="code"
+              value={formData.code}
               onChange={handleChange}
               className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder="Enter course code"
@@ -113,16 +125,16 @@ export default function AddCourse() {
 
           <div className="flex flex-col gap-2">
             <label
-              htmlFor="courseTitle"
+              htmlFor="title"
               className="text-sm font-semibold text-gray-600"
             >
               Course Title
             </label>
             <input
               type="text"
-              id="courseTitle"
-              name="courseTitle"
-              value={formData.courseTitle}
+              id="title"
+              name="title"
+              value={formData.title}
               onChange={handleChange}
               className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder="Enter course title"
@@ -132,15 +144,15 @@ export default function AddCourse() {
 
           <div className="flex flex-col gap-2">
             <label
-              htmlFor="courseDescription"
+              htmlFor="description"
               className="text-sm font-semibold text-gray-600"
             >
               Course Description
             </label>
             <textarea
-              id="courseDescription"
-              name="courseDescription"
-              value={formData.courseDescription}
+              id="description"
+              name="description"
+              value={formData.description}
               onChange={handleChange}
               className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 h-32"
               placeholder="Enter course description"
@@ -150,16 +162,16 @@ export default function AddCourse() {
 
           <div className="flex flex-col gap-2">
             <label
-              htmlFor="courseUnits"
+              htmlFor="units"
               className="text-sm font-semibold text-gray-600"
             >
               Course Units
             </label>
             <input
               type="number"
-              id="courseUnits"
-              name="courseUnits"
-              value={formData.courseUnits}
+              id="units"
+              name="units"
+              value={formData.units}
               onChange={handleChange}
               className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder="Enter number of units"
@@ -175,7 +187,8 @@ export default function AddCourse() {
             >
               Department
             </label>
-            <select
+            {departments.length > 0 ? (
+              <select
               id="departmentId"
               name="departmentId"
               value={formData.departmentId}
@@ -184,10 +197,15 @@ export default function AddCourse() {
               required
             >
               <option value="">Select a department</option>
-              {/* @TODO: Fetch departments from backend */}
-              <option value="1">Computer Science</option>
-              <option value="2">Mathematics</option>
-            </select>
+              {departments.map((department) => (
+                <option key={department.id} value={department.id}>
+                    {department.name}
+                  </option>
+                ))}
+              </select>
+            ) : (
+              <p>Finding departments....</p>
+            )}
           </div>
 
           <div className="flex items-center gap-2">

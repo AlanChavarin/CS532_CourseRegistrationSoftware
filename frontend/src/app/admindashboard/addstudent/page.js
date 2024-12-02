@@ -1,22 +1,31 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faUserGraduate } from "@fortawesome/free-solid-svg-icons";
 
 export default function AddStudent() {
   const [formData, setFormData] = useState({
-    firstName: "",
-    middleName: "",
-    lastName: "",
+    //firstName: "",
+    //middleName: "",
+    //lastName: "",
+    name: "",
     address: "",
     phoneNumber: "",
     dateOfBirth: "",
     majorId: "",
     minorId: "",
     gpa: "",
-    userId: "", // For user authentication connection
+    userEmail: "", // For user authentication connection
   });
+  
+  const [majors, setMajors] = useState([]);
+
+  useEffect(() => {
+    fetch(`${process.env.NEXT_PUBLIC_API_KEY}majors`)
+      .then(res => res.json())
+      .then(data => setMajors(data))
+  }, []);
 
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
@@ -28,7 +37,6 @@ export default function AddStudent() {
       [name]: value,
     }));
   };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
@@ -71,14 +79,16 @@ export default function AddStudent() {
           },
           body: JSON.stringify(formData),
         }
-      );
+      )
+
+      const responseData = await response.json();
 
       if (!response.ok) {
-        throw new Error("Failed to create student");
+        throw new Error(responseData.message || "Failed to create student");
       }
 
       // Redirect to students view page on success
-      window.location.href = "/admindashboard/viewstudents";
+      window.location.href = "/students";
     } catch (err) {
       setError(err.message || "Failed to create student. Please try again.");
     } finally {
@@ -102,7 +112,27 @@ export default function AddStudent() {
           )}
 
           {/* Name Fields */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="flex flex-col gap-2">
+            <label
+              htmlFor="name"
+              className="text-sm font-semibold text-gray-600"
+            >
+              Full Name*
+            </label>
+            <input
+              type="text"
+              id="name"
+              name="name"
+              value={formData.name}
+              onChange={handleChange}
+              className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="Enter full name"
+              required
+            />
+          </div>
+
+
+          {/* <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="flex flex-col gap-2">
               <label
                 htmlFor="firstName"
@@ -158,7 +188,7 @@ export default function AddStudent() {
                 required
               />
             </div>
-          </div>
+          </div> */}
 
           {/* Contact Information */}
           <div className="flex flex-col gap-2">
@@ -228,18 +258,22 @@ export default function AddStudent() {
               >
                 Major
               </label>
-              <select
-                id="majorId"
+              {majors.length > 0 && (
+                <select
+                  id="majorId"
                 name="majorId"
                 value={formData.majorId}
                 onChange={handleChange}
                 className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
                 <option value="">Select a major</option>
-                {/* @TODO: Fetch majors from backend */}
-                <option value="1">Computer Science</option>
-                <option value="2">Mathematics</option>
-              </select>
+                {majors.map((major) => (
+                  <option key={major.id} value={major.id}>
+                    {major.title}
+                  </option>
+                  ))}
+                </select>
+              )}
             </div>
 
             <div className="flex flex-col gap-2">
@@ -249,18 +283,22 @@ export default function AddStudent() {
               >
                 Minor
               </label>
-              <select
-                id="minorId"
-                name="minorId"
-                value={formData.minorId}
-                onChange={handleChange}
+              {majors.length > 0 && (
+                <select
+                  id="minorId"
+                  name="minorId"
+                  value={formData.minorId}
+                  onChange={handleChange}
                 className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
                 <option value="">Select a minor</option>
-                {/* @TODO: Fetch majors from backend */}
-                <option value="1">Computer Science</option>
-                <option value="2">Mathematics</option>
-              </select>
+                {majors.map((major) => (
+                  <option key={major.id} value={major.id}>
+                    {major.title}
+                  </option>
+                  ))}
+                </select>
+              )}
             </div>
           </div>
 
@@ -282,6 +320,24 @@ export default function AddStudent() {
               step="0.01"
               min="0"
               max="4"
+            />
+          </div>
+
+          <div className="flex flex-col gap-2">
+            <label
+              htmlFor="userEmail"
+              className="text-sm font-semibold text-gray-600"
+            >
+              User Email*
+            </label>
+            <input
+              type="email"
+              id="userEmail"
+              name="userEmail"
+              value={formData.userEmail}
+              onChange={handleChange}
+              className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              required
             />
           </div>
 

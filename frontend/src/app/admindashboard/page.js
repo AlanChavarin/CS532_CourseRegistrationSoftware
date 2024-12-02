@@ -23,17 +23,18 @@ const linkComponentDataArray = [
     icon: faPlus,
     name: "Add Department",
   },
-  { link: "/admindashboard/viewcourses", icon: faBook, name: "View Courses" },
-  {
-    link: "/admindashboard/viewstudents",
-    icon: faUserGraduate,
-    name: "View Students",
-  },
-  {
-    link: "/admindashboard/viewfaculty",
-    icon: faUserTie,
-    name: "View Faculty",
-  },
+  { link: "/admindashboard/adduser", icon: faPlus, name: "Add User" },
+  // { link: "/admindashboard/viewcourses", icon: faBook, name: "View Courses" },
+  // {
+  //   link: "/admindashboard/students",
+  //   icon: faUserGraduate,
+  //   name: "View Students",
+  // },
+  // {
+  //   link: "/admindashboard/viewfaculty",
+  //   icon: faUserTie,
+  //   name: "View Faculty",
+  // },
 ];
 
 function AdminDashboard() {

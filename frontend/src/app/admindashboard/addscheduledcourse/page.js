@@ -91,7 +91,7 @@ export default function AddScheduledCourse() {
       }
 
       // Redirect to course sections view page on success
-      window.location.href = "/admindashboard/viewscheduledcourses";
+      window.location.href = "/admindashboard/scheduledcourses";
     } catch (err) {
       setError(
         err.message || "Failed to create scheduled course. Please try again."
