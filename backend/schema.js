@@ -22,7 +22,8 @@ const departments = pgTable('departments', {
   headFacultyId: integer('head_faculty_id').references(() => faculty.id),
 }, (table) => {
   return {
-    nameIdx: sql`CREATE INDEX IF NOT EXISTS departments_name_search_idx ON ${table} USING gin (to_tsvector('english', name))`
+    nameIdx: sql`CREATE INDEX IF NOT EXISTS departments_name_search_idx ON ${table} USING gin (to_tsvector('english', name))`,
+    descriptionIdx: sql`CREATE INDEX IF NOT EXISTS departments_description_search_idx ON ${table} USING gin (to_tsvector('english', description))`
   }
 });
 
@@ -45,7 +46,8 @@ const users = pgTable('users', {
   studentId: integer('student_id').references(() => students.id)
 }, (table) => {
   return {
-    emailIdx: sql`CREATE INDEX IF NOT EXISTS users_email_idx ON ${table} USING gin (to_tsvector('english', email))`
+    emailIdx: sql`CREATE INDEX IF NOT EXISTS users_email_idx ON ${table} USING gin (to_tsvector('english', email))`,
+    usernameIdx: sql`CREATE INDEX IF NOT EXISTS users_username_idx ON ${table} USING gin (to_tsvector('english', username))`
   }
 });
 
@@ -60,7 +62,9 @@ const students = pgTable('students', {
   GPA: real('gpa').notNull().default(0.0)
 }, (table) => {
   return {
-    nameIdx: sql`CREATE INDEX IF NOT EXISTS students_name_search_idx ON ${table} USING gin (to_tsvector('english', name))`
+    nameIdx: sql`CREATE INDEX IF NOT EXISTS students_name_search_idx ON ${table} USING gin (to_tsvector('english', name))`,
+    addressIdx: sql`CREATE INDEX IF NOT EXISTS students_address_search_idx ON ${table} USING gin (to_tsvector('english', address))`,
+
   }
 });
 
@@ -85,7 +89,8 @@ const faculty = pgTable('faculty', {
   userId: integer('user_id').references(() => users.id).notNull()
 }, (table) => {
   return {
-    nameIdx: sql`CREATE INDEX IF NOT EXISTS faculty_name_search_idx ON ${table} USING gin (to_tsvector('english', name))`
+    nameIdx: sql`CREATE INDEX IF NOT EXISTS faculty_name_search_idx ON ${table} USING gin (to_tsvector('english', name))`,
+    positionTitleIdx: sql`CREATE INDEX IF NOT EXISTS faculty_position_title_search_idx ON ${table} USING gin (to_tsvector('english', position_title))`
   }
 });
 

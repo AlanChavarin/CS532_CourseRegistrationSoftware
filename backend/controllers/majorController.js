@@ -1,18 +1,36 @@
 const asyncHandler = require('express-async-handler')
 const { db } = require('../db')
 const { majors } = require('../schema')
-const { eq } = require('drizzle-orm')
+const { eq, sql } = require('drizzle-orm')
 
 // @desc    Get all majors
 // @route   GET /api/majors
 // @access  Public
 const getMajors = asyncHandler(async (req, res) => {
-  const allMajors = await db.query.majors.findMany({
-    with: {
-      department: true,
-    }
-  })
-  res.status(200).json(allMajors)
+  const { searchTerm } = req.query;
+  let result;
+
+  if (searchTerm) {
+    const formattedSearch = searchTerm
+      .trim()
+      .split(/\s+/)
+      .join(' & ');
+
+    result = await db.query.majors.findMany({
+      with: {
+        department: true,
+      },
+      where: sql`to_tsvector('english', ${majors.title}) @@ to_tsquery('english', ${formattedSearch})`
+    });
+  } else {
+    result = await db.query.majors.findMany({
+      with: {
+        department: true,
+      }
+    });
+  }
+
+  res.status(200).json(result)
 })
 
 // @desc    Get single major

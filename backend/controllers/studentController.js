@@ -1,14 +1,32 @@
 const asyncHandler = require('express-async-handler')
 const { db } = require('../db')
 const { students } = require('../schema')
-const { eq } = require('drizzle-orm')
+const { eq, sql } = require('drizzle-orm')
 
 // @desc    Get all students
 // @route   GET /api/students
 // @access  Public
 const getStudents = asyncHandler(async (req, res) => {
-    const allStudents = await db.query.students.findMany();
-    res.status(200).json(allStudents);
+    const { searchTerm } = req.query;
+    let students;
+
+    if (searchTerm) {
+        const formattedSearch = searchTerm
+            .trim()
+            .split(/\s+/)
+            .join(' & ');
+
+        students = await db.query.students.findMany({
+            where: sql`
+                to_tsvector('english', "name") @@ to_tsquery('english', ${formattedSearch})
+                OR
+                to_tsvector('english', "address") @@ to_tsquery('english', ${formattedSearch})
+            `
+        });
+    } else {
+        students = await db.query.students.findMany();
+    }
+    res.status(200).json(students);
 });
 
 // @desc    Get single student

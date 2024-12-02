@@ -1,15 +1,34 @@
 const asyncHandler = require('express-async-handler')
 const { db } = require('../db')
 const { faculty, departments, facultyDepartmentsInvolvedIn } = require('../schema')
-const { eq } = require('drizzle-orm')
+const { eq, sql } = require('drizzle-orm')
 
 // @desc    Get all faculty
 // @route   GET /api/faculty
 // @access  Public
 const getFaculty = asyncHandler(async (req, res) => {
-  const allFaculty = await db.query.faculty.findMany()
-  res.status(200).json(allFaculty)
-})
+  const { searchTerm } = req.query;
+  let faculty;
+
+  if (searchTerm) {
+    const formattedSearch = searchTerm
+      .trim()
+      .split(/\s+/)
+      .join(' & ');
+
+    faculty = await db.query.faculty.findMany({
+      where: sql`
+        to_tsvector('english', "name") @@ to_tsquery('english', ${formattedSearch})
+        OR
+        to_tsvector('english', "position_title") @@ to_tsquery('english', ${formattedSearch})
+      `
+    });
+  } else {
+    faculty = await db.query.faculty.findMany();
+  }
+  res.status(200).json(faculty);
+});
+
 
 // @desc    Get single faculty member
 // @route   GET /api/faculty/:id

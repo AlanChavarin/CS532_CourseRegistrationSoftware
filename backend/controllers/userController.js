@@ -1,14 +1,32 @@
 const asyncHandler = require('express-async-handler')
 const { db } = require('../db')
 const { users } = require('../schema')
-const { eq } = require('drizzle-orm')
+const { eq, sql } = require('drizzle-orm')
 
 // @desc    Get all users
 // @route   GET /api/users
 // @access  Public
 const getUsers = asyncHandler(async (req, res) => {
-    const allUsers = await db.query.users.findMany();
-    res.status(200).json(allUsers);
+    const { searchTerm } = req.query;
+    let users;
+
+    if (searchTerm) {
+        const formattedSearch = searchTerm
+            .trim()
+            .split(/\s+/)
+            .join(' & ');
+
+        users = await db.query.users.findMany({
+            where: sql`
+                to_tsvector('english', "email") @@ to_tsquery('english', ${formattedSearch})
+                OR
+                to_tsvector('english', "username") @@ to_tsquery('english', ${formattedSearch})
+            `
+        });
+    } else {
+        users = await db.query.users.findMany();
+    }
+    res.status(200).json(users);
 });
 
 // @desc    Get single user
