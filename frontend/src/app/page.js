@@ -1,13 +1,13 @@
 'use client'
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faUser, faBook, faGraduationCap, faComputer, faDashboard } from "@fortawesome/free-solid-svg-icons";
-import Link from "next/link";
 import LinkMenu from "./helperComponents/LinkMenu";
 
 const linkComponentDataArray = [
   {link: "/studentlogin", icon: faGraduationCap, name: "Student Login"},
   {link: "/facultyadminlogin", icon: faUser, name: "Faculty/Admin Login"},
   {link: "/courses", icon: faBook, name: "View Courses"},
+  {link: "/majors", icon: faGraduationCap, name: "View Majors"},
   {link: "/admindashboard", icon: faDashboard, name: "Admin Dashboard"}
 ]
 

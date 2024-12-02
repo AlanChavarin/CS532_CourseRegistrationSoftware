@@ -4,13 +4,15 @@ const weekDayEnum = pgEnum('week_day', ['Monday', 'Tuesday', 'Wednesday', 'Thurs
 const userTypeEnum = pgEnum('user_type', ['faculty', 'student']);
 const semesterEnum = pgEnum('semester', ['Fall', 'Spring', 'Summer', 'Winter']);
 
-
-
 const majors = pgTable('majors', {
   id: serial('id').primaryKey(),
   title: varchar('title', { length: 255 }).notNull(),
   departmentId: integer('department_id').references(() => departments.id),
   description: text('description')
+}, (table) => {
+  return {
+    titleIdx: sql`CREATE INDEX IF NOT EXISTS majors_title_search_idx ON ${table} USING gin (to_tsvector('english', title))`
+  }
 });
 
 const departments = pgTable('departments', {
@@ -18,6 +20,10 @@ const departments = pgTable('departments', {
   name: varchar('name', { length: 255 }).notNull().unique(),
   description: text('description'),
   headFacultyId: integer('head_faculty_id').references(() => faculty.id),
+}, (table) => {
+  return {
+    nameIdx: sql`CREATE INDEX IF NOT EXISTS departments_name_search_idx ON ${table} USING gin (to_tsvector('english', name))`
+  }
 });
 
 const dates = pgTable('dates', {
@@ -37,6 +43,10 @@ const users = pgTable('users', {
   userType: userTypeEnum('user_type').notNull(),
   facultyId: integer('faculty_id').references(() => faculty.id),
   studentId: integer('student_id').references(() => students.id)
+}, (table) => {
+  return {
+    emailIdx: sql`CREATE INDEX IF NOT EXISTS users_email_idx ON ${table} USING gin (to_tsvector('english', email))`
+  }
 });
 
 const students = pgTable('students', {
@@ -48,6 +58,10 @@ const students = pgTable('students', {
   minorId: integer('minor_id').references(() => majors.id),
   userId: integer('user_id').references(() => users.id).notNull(),
   GPA: real('gpa').notNull().default(0.0)
+}, (table) => {
+  return {
+    nameIdx: sql`CREATE INDEX IF NOT EXISTS students_name_search_idx ON ${table} USING gin (to_tsvector('english', name))`
+  }
 });
 
 const studentNotes = pgTable('student_notes', {
@@ -55,6 +69,10 @@ const studentNotes = pgTable('student_notes', {
   studentId: integer('student_id').references(() => students.id),
   note: text('note'),
   createdAt: timestamp('created_at').notNull().defaultNow()
+}, (table) => {
+  return {
+    noteIdx: sql`CREATE INDEX IF NOT EXISTS student_notes_note_idx ON ${table} USING gin (to_tsvector('english', note))`
+  }
 });
 
 const faculty = pgTable('faculty', {
@@ -65,6 +83,10 @@ const faculty = pgTable('faculty', {
   officeNumber: varchar('office_number', { length: 50 }),
   mainDepartment: integer('main_department_id').references(() => departments.id),
   userId: integer('user_id').references(() => users.id).notNull()
+}, (table) => {
+  return {
+    nameIdx: sql`CREATE INDEX IF NOT EXISTS faculty_name_search_idx ON ${table} USING gin (to_tsvector('english', name))`
+  }
 });
 
 
@@ -78,6 +100,10 @@ const scheduledCourses = pgTable('scheduled_courses', {
   availableSeats: integer('available_seats').notNull().default(0),
   semester: semesterEnum('semester').notNull(),
   year: integer('year').notNull()
+}, (table) => {
+  return {
+    instructorIdx: sql`CREATE INDEX IF NOT EXISTS scheduled_courses_instructor_id_idx ON ${table} (instructor_id)`
+  }
 });
 
 const courses  = pgTable('courses', {
