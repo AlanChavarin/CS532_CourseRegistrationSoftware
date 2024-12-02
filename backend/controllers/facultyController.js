@@ -17,6 +17,9 @@ const getFaculty = asyncHandler(async (req, res) => {
       .join(' & ');
 
     faculty = await db.query.faculty.findMany({
+      with: {
+        mainDepartment: true
+      },
       where: sql`
         to_tsvector('english', "name") @@ to_tsquery('english', ${formattedSearch})
         OR
@@ -24,7 +27,11 @@ const getFaculty = asyncHandler(async (req, res) => {
       `
     });
   } else {
-    faculty = await db.query.faculty.findMany();
+    faculty = await db.query.faculty.findMany({
+      with: {
+        mainDepartment: true
+      }
+    });
   }
   res.status(200).json(faculty);
 });

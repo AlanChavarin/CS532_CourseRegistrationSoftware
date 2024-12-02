@@ -245,7 +245,7 @@ const courseQualifiedFaculty = pgTable('course_qualified_faculty', {
   facultyId: integer('faculty_id').references(() => faculty.id)
 });
 
-const facultyRelations = relations(faculty, ({ one, many }) => ({
+const facultyRelations = relations(faculty, ({ one }) => ({
   user: one(users, {
     fields: [faculty.userId],
     references: [users.id]
@@ -253,11 +253,8 @@ const facultyRelations = relations(faculty, ({ one, many }) => ({
   mainDepartment: one(departments, {
     fields: [faculty.mainDepartment],
     references: [departments.id]
-  }),
-  facultyDepartmentsInvolvedIn: many(facultyDepartmentsInvolvedIn),
-  majorFaculty: many(majorFaculty),
-  scheduledCourses: many(scheduledCourses),
-  courseQualifiedFaculty: many(courseQualifiedFaculty)
+  })
+
 }));
 
 const courseQualifiedFacultyRelations = relations(courseQualifiedFaculty, ({ one }) => ({
@@ -305,14 +302,11 @@ const scheduledCourseRelations = relations(scheduledCourses, ({ many, one }) => 
 
 }));
 
-const departmentRelations = relations(departments, ({ one, many }) => ({
+const departmentRelations = relations(departments, ({ one }) => ({
   headFaculty: one(faculty, {
     fields: [departments.headFacultyId],
     references: [faculty.id]
-  }),
-  facultyDepartmentsInvolvedIn: many(facultyDepartmentsInvolvedIn),
-  courses: many(courses),
-  faculty: many(faculty)
+  })
 }));
 
 const facultyDepartmentsInvolvedIn = pgTable('faculty_departments_involved_in', {

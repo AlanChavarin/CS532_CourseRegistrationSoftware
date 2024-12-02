@@ -1,6 +1,6 @@
 'use client'
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faUser, faBook, faGraduationCap, faComputer, faDashboard } from "@fortawesome/free-solid-svg-icons";
+import { faUser, faBook, faGraduationCap, faComputer, faDashboard, faBuilding, faSearch } from "@fortawesome/free-solid-svg-icons";
 import LinkMenu from "./helperComponents/LinkMenu";
 
 const linkComponentDataArray = [
@@ -8,6 +8,10 @@ const linkComponentDataArray = [
   {link: "/facultyadminlogin", icon: faUser, name: "Faculty/Admin Login"},
   {link: "/courses", icon: faBook, name: "View Courses"},
   {link: "/majors", icon: faGraduationCap, name: "View Majors"},
+  {link: "/departments", icon: faBuilding, name: "View Departments"},
+  {link: "/studentNotes", icon: faSearch, name: "Student Notes Search"},
+  {link: "/students", icon: faUser, name: "Student Search"},
+  {link: "/faculty", icon: faUser, name: "Faculty Search"},
   {link: "/admindashboard", icon: faDashboard, name: "Admin Dashboard"}
 ]
 
@@ -26,9 +30,6 @@ export default function Home() {
     </div>
   );
 }
-
-
-
 
 {/* <div className="flex flex-col md:flex-row items-stretch justify-center gap-[16px] w-full max-w-[1000px] flex-wrap">
 <Link href="/studentlogin" className="flex flex-1 items-center justify-centers gap-[16px] text-[20px] md:text-[24px] hover:text-gray-400 cursor-pointer flex-col p-6 hover:p-8 rounded-lg border-[2px] border-black hover:border-gray-400 w-full md:min-w-[250px] transition-all duration-300">

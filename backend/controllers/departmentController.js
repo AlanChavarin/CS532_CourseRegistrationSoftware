@@ -22,16 +22,16 @@ const getDepartments = asyncHandler(async (req, res) => {
         to_tsvector('english', "description") @@ to_tsquery('english', ${formattedSearch})`,
       with: {
         headFaculty: true,
-        faculty: true,
-        courses: true
+        //faculty: true,
+        //courses: true
       }
     });
   } else {
     departments = await db.query.departments.findMany({
       with: {
         headFaculty: true,
-        faculty: true,
-        courses: true
+        //faculty: true,
+        //courses: true
       }
     });
   }
