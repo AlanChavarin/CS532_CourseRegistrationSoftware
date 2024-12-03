@@ -12,8 +12,9 @@ const linkComponentDataArray = [
   {link: "/studentNotes", icon: faSearch, name: "Student Notes Search"},
   {link: "/students", icon: faUser, name: "Student Search"},
   {link: "/faculty", icon: faUser, name: "Faculty Search"},
+  {link: "/scheduledCourses", icon: faBook, name: "Scheduled Course Search"},
   {link: "/admindashboard", icon: faDashboard, name: "Admin Dashboard"},
-  {link: "/users", icon: faUser, name: "User Search"}
+  {link: "/users", icon: faUser, name: "User Search"},
 ]
 
 export default function Home() {

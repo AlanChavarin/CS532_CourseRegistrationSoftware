@@ -1,21 +1,70 @@
 const asyncHandler = require('express-async-handler')
 const { db } = require('../db')
 const { scheduledCourses } = require('../schema')
-const { eq } = require('drizzle-orm')
+const { eq, sql, and } = require('drizzle-orm')
 
 // @desc    Get all scheduled courses
 // @route   GET /api/scheduled-courses
 // @access  Public
 const getScheduledCourses = asyncHandler(async (req, res) => {
-    const { semester, year, courseId, instructorId, searchTerm} = req.query;
+    const { semester, year, courseId, instructorId, searchTerm } = req.query;
 
-    const allScheduledCourses = await db.query.scheduledCourses.findMany({
+    let query = {
         with: {
             instructor: true,
             course: true
-        }
-    });
-    res.status(200).json(allScheduledCourses);
+        },
+        where: undefined
+    };
+
+    let conditions = [];
+
+    if (semester) {
+        conditions.push(eq(scheduledCourses.semester, semester));
+    }
+
+    if (year) {
+        conditions.push(eq(scheduledCourses.year, parseInt(year)));
+    }
+
+    if (courseId) {
+        conditions.push(eq(scheduledCourses.courseId, parseInt(courseId)));
+    }
+
+    if (instructorId) {
+        conditions.push(eq(scheduledCourses.instructorId, parseInt(instructorId)));
+    }
+
+    if (searchTerm) {
+        const formattedSearch = searchTerm
+            .trim()
+            .split(/\s+/)
+            .join(' & ');
+
+        conditions.push(sql`
+            EXISTS (
+                SELECT 1
+                FROM ${scheduledCourses} sc
+                LEFT JOIN courses c ON c.id = sc.course_id
+                LEFT JOIN faculty i ON i.id = sc.instructor_id
+                WHERE 
+                    to_tsvector('english', ${scheduledCourses.location}) @@ to_tsquery('english', ${formattedSearch})
+                    OR
+                    to_tsvector('english', c."title") @@ to_tsquery('english', ${formattedSearch})
+                    OR
+                    to_tsvector('english', c."description") @@ to_tsquery('english', ${formattedSearch})
+                    OR
+                    to_tsvector('english', i."name") @@ to_tsquery('english', ${formattedSearch})
+            )
+        `);
+    }
+
+    if (conditions.length > 0) {
+        query.where = and(...conditions);
+    }
+
+    const scheduledCoursesResult = await db.query.scheduledCourses.findMany(query);
+    res.status(200).json(scheduledCoursesResult);
 });
 
 // @desc    Get single scheduled course
