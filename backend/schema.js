@@ -109,7 +109,11 @@ const scheduledCourses = pgTable('scheduled_courses', {
   scheduleNumber: varchar('schedule_number', { length: 20 }).notNull()
 }, (table) => {
   return {
-    instructorIdx: sql`CREATE INDEX IF NOT EXISTS scheduled_courses_instructor_id_idx ON ${table} (instructor_id)`
+    instructorIdx: sql`CREATE INDEX IF NOT EXISTS scheduled_courses_instructor_id_idx ON ${table} (instructor_id)`,
+    courseIdx: sql`CREATE INDEX IF NOT EXISTS scheduled_courses_course_id_idx ON ${table} (course_id)`,
+    semesterIdx: sql`CREATE INDEX IF NOT EXISTS scheduled_courses_semester_idx ON ${table} (semester)`,
+    yearIdx: sql`CREATE INDEX IF NOT EXISTS scheduled_courses_year_idx ON ${table} (year)`,
+    locationIdx: sql`CREATE INDEX IF NOT EXISTS scheduled_courses_location_idx ON ${table} (location)`
   }
 });
 
@@ -385,6 +389,26 @@ const majorRequirementsRelations = relations(majorRequirements, ({ one }) => ({
   })
 }));  
 
+const courseWaitlist = pgTable('course_waitlist', {
+  id: serial('id').primaryKey(),
+  studentId: integer('student_id').references(() => students.id),
+  scheduledCourseId: integer('scheduled_course_id').references(() => scheduledCourses.id),
+  position: integer('position').notNull(),
+  requestDate: timestamp('request_date').defaultNow().notNull()
+});
+
+// Add relations
+const courseWaitlistRelations = relations(courseWaitlist, ({ one }) => ({
+  student: one(students, {
+      fields: [courseWaitlist.studentId],
+      references: [students.id]
+  }),
+  scheduledCourse: one(scheduledCourses, {
+      fields: [courseWaitlist.scheduledCourseId],
+      references: [scheduledCourses.id]
+  })
+}));
+
 
 module.exports = {
     weekDayEnum,
@@ -423,7 +447,9 @@ module.exports = {
     studentNotesRelations,
     transferCredits,
     transferCreditsRelations,
-    semesterEnum
+    semesterEnum,
+    courseWaitlist,
+    courseWaitlistRelations
 
 
 };

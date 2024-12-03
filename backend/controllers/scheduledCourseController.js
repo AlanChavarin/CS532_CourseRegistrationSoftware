@@ -7,6 +7,8 @@ const { eq } = require('drizzle-orm')
 // @route   GET /api/scheduled-courses
 // @access  Public
 const getScheduledCourses = asyncHandler(async (req, res) => {
+    const { semester, year, courseId, instructorId, searchTerm} = req.query;
+
     const allScheduledCourses = await db.query.scheduledCourses.findMany({
         with: {
             instructor: true,
