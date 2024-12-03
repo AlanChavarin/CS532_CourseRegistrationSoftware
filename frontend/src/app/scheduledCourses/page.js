@@ -25,9 +25,13 @@ function ScheduledCourses() {
                         <p className="text-sm text-gray-500">Instructor: {scheduledCourse.instructor.name}</p>
                         <p className="text-sm text-gray-500">Semester: {scheduledCourse.semester} {scheduledCourse.year}</p>
                         <p className="text-sm text-gray-500">Units: {scheduledCourse.course.units}</p>
+                        <p className="text-sm text-gray-500">Schedule Number: {scheduledCourse.scheduleNumber}</p>
                         <p className="text-sm text-gray-500">
                             {scheduledCourse.course.isGraduateLevel ? 'Graduate Level' : 'Undergraduate Level'}
                         </p>
+                        <p className="text-sm text-gray-500">Total Seats: {scheduledCourse.seats}</p>
+                        <p className="text-sm text-gray-500">Available Seats: {scheduledCourse.availableSeats}</p>
+                        <p className="text-sm text-gray-500">Location: {scheduledCourse.location}</p>
                         <p className="text-sm text-gray-500">Description: {scheduledCourse.course.description}</p>
                     </div>
                 </div>

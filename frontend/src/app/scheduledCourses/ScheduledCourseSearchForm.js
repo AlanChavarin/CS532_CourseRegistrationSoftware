@@ -80,9 +80,9 @@ function ScheduledCourseSearchForm({ setScheduledCourses }) {
         className="w-full px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500"
       >
         <option value="">Select Semester</option>
-        <option value="FALL">Fall</option>
-        <option value="SPRING">Spring</option>
-        <option value="SUMMER">Summer</option>
+        <option value="Fall">Fall</option>
+        <option value="Spring">Spring</option>
+        <option value="Summer">Summer</option>
       </select>
 
       <input
