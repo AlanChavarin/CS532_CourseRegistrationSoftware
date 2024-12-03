@@ -4,13 +4,30 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBook, faEdit, faArrowLeft } from "@fortawesome/free-solid-svg-icons";
 import Link from "next/link";
 
-export default function CourseDetails({ params }) {
+export default function CourseDetails({ params: paramsPromise }) {
   const [course, setCourse] = useState(null);
   const [scheduledCourses, setScheduledCourses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [params, setParams] = useState(null);
 
   useEffect(() => {
+    const unwrapParams = async () => {
+      try {
+        const resolvedParams = await paramsPromise;
+        setParams(resolvedParams);
+      } catch (err) {
+        setError("Failed to unwrap route parameters");
+        console.error(err);
+      }
+    };
+
+    unwrapParams();
+  }, [paramsPromise]);
+
+  useEffect(() => {
+    if (!params?.id) return;
+
     const fetchCourseData = async () => {
       try {
         // Fetch course details
@@ -35,7 +52,7 @@ export default function CourseDetails({ params }) {
     };
 
     fetchCourseData();
-  }, [params.id]);
+  }, [params]);
 
   if (loading) {
     return (

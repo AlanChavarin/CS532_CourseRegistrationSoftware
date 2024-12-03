@@ -11,12 +11,29 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import Link from "next/link";
 
-export default function DepartmentDetails({ params }) {
+export default function DepartmentDetails({ params: paramsPromise }) {
   const [department, setDepartment] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [params, setParams] = useState(null);
 
   useEffect(() => {
+    const unwrapParams = async () => {
+      try {
+        const resolvedParams = await paramsPromise;
+        setParams(resolvedParams);
+      } catch (err) {
+        setError("Failed to unwrap route parameters");
+        console.error(err);
+      }
+    };
+
+    unwrapParams();
+  }, [paramsPromise]);
+
+  useEffect(() => {
+    if (!params?.id) return;
+
     const fetchDepartmentData = async () => {
       try {
         const response = await fetch(
@@ -38,7 +55,7 @@ export default function DepartmentDetails({ params }) {
     };
 
     fetchDepartmentData();
-  }, [params.id]);
+  }, [params]);
 
   if (loading) {
     return (
