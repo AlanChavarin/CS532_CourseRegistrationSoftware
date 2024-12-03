@@ -44,6 +44,10 @@ const getStudents = asyncHandler(async (req, res) => {
 const getStudent = asyncHandler(async (req, res) => {
     const student = await db.query.students.findFirst({
         where: eq(students.id, parseInt(req.params.studentId)),
+        with: {
+            major: true,
+            minor: true
+        }   
     });
 
     if (!student) {

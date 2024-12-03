@@ -15,6 +15,8 @@ const linkComponentDataArray = [
   {link: "/scheduledCourses", icon: faBook, name: "Scheduled Course Search"},
   {link: "/admindashboard", icon: faDashboard, name: "Admin Dashboard"},
   {link: "/users", icon: faUser, name: "User Search"},
+  {link: "/courseRegistration", icon: faBook, name: "Course Registration"},
+  {link: "/studentDashboard", icon: faGraduationCap, name: "Student Dashboard"},
 ]
 
 export default function Home() {
