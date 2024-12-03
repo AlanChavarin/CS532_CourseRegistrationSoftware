@@ -9,7 +9,7 @@ const {
     registerForCourse,
     getRegisteredCourses,
     dropCourse,
-    getWaitlistPosition
+    //getWaitlistPosition
 } = require('../controllers/studentController');
 
 // Course registration routes
@@ -18,7 +18,7 @@ router.get('/:studentId/courses', getRegisteredCourses);
 router.delete('/:studentId/courses/:registrationId', dropCourse);
 
 // Waitlist route
-router.get('/:studentId/waitlist/:scheduledCourseId', getWaitlistPosition);
+//router.get('/:studentId/waitlist/:scheduledCourseId', getWaitlistPosition);
 
 // Get all students
 router.get('/', getStudents);
