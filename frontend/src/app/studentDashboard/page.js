@@ -3,39 +3,53 @@ import { useState, useEffect } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faBook, faGraduationCap } from "@fortawesome/free-solid-svg-icons"
+import { useUser } from '../context/UserContext'
 
 export default function StudentDashboard() {
+  const { user } = useUser();
   const [student, setStudent] = useState(null)
   const [enrolledCourses, setEnrolledCourses] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
-  
   const searchParams = useSearchParams()
-  const studentId = searchParams.get('id')
 
   useEffect(() => {
-    console.log("Student: ", student)
+    console.log("student: ", student)
   }, [student])
-
-  useEffect(() => {
-    console.log("enrolledCourses: ", enrolledCourses)
-  }, [enrolledCourses])
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Fetch student details
-        const studentRes = await fetch(`${process.env.NEXT_PUBLIC_API_KEY}students/${studentId}`)
-        if (!studentRes.ok) throw new Error('Failed to fetch student data')
-        const studentData = await studentRes.json()
-        setStudent(studentData)
+        if(searchParams.get('id')) {
+          const studentRes = await fetch(`${process.env.NEXT_PUBLIC_API_KEY}students/${searchParams.get('id')}`)
+          if (!studentRes.ok) throw new Error('Failed to fetch student data')
+          const studentData = await studentRes.json()
+          setStudent(studentData)
+        } else {
+          if(!user?.address) {
+            setError("You are not a student")
+            return
+          } else {
+            setStudent(user)
+          }
+        }
+      } catch (err) {
+        setError(err.message)
+      }
+    }
 
-        // Fetch enrolled courses
-        const coursesRes = await fetch(`${process.env.NEXT_PUBLIC_API_KEY}students/${studentId}/courses`)
+    if (user || searchParams.get('id')) {
+      fetchData()
+    }
+  }, [user])
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const coursesRes = await fetch(`${process.env.NEXT_PUBLIC_API_KEY}students/${student.id}/courses`)
         if (!coursesRes.ok) throw new Error('Failed to fetch courses')
         const coursesData = await coursesRes.json()
         setEnrolledCourses(coursesData)
-
       } catch (err) {
         setError(err.message)
       } finally {
@@ -43,41 +57,10 @@ export default function StudentDashboard() {
       }
     }
 
-    if (studentId) {
+    if (student) {
       fetchData()
     }
-  }, [studentId])
-
-
-  if(!studentId) {
-    return (
-      <div className="flex-1 flex items-center justify-center">
-        <div className="text-xl">No student ID provided</div>
-        <form 
-          onSubmit={(e) => {
-            e.preventDefault()
-            const id = e.target.studentId.value
-            window.location.href = `/studentDashboard?id=${id}`
-          }}
-          className="flex flex-col items-center gap-4 mt-4"
-        >
-          <input
-            type="number" 
-            name="studentId"
-            placeholder="Enter Student ID"
-            className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500"
-            required
-          />
-          <button
-            type="submit"
-            className="px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-700 transition-colors"
-          >
-            View Dashboard
-          </button>
-        </form>
-      </div>
-    )
-  }
+  }, [student])
 
   if (loading) {
     return (
@@ -108,7 +91,7 @@ export default function StudentDashboard() {
       <div className="w-full max-w-4xl">
         <div className="flex items-center gap-4 mb-8">
           <FontAwesomeIcon icon={faGraduationCap} className="text-4xl"/>
-          <h1 className="text-3xl font-bold">{student.name}'s Dashboard</h1>
+          <h1 className="text-3xl font-bold">{student.name}'s {searchParams.get('id') ? 'Details' : 'Dashboard'}</h1>
         </div>
 
         <div className="bg-white rounded-lg shadow p-6 mb-8">
@@ -169,7 +152,6 @@ export default function StudentDashboard() {
                   </p>
                   <p className="text-gray-600">Instructor: {enrollment.scheduledCourse.instructor.name}</p>
                   <p className="text-gray-600">Semester: {enrollment.scheduledCourse.semester}</p>
-
                   {enrollment.grade && (
                     <p className="text-gray-600">Grade: {enrollment.grade}</p>
                   )}
@@ -178,8 +160,7 @@ export default function StudentDashboard() {
             </div>
           )}
         </div>
-        </div>
       </div>
-
+    </div>
   )
 }

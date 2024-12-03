@@ -7,10 +7,18 @@ const { eq, sql } = require('drizzle-orm')
 // @route   GET /api/majors
 // @access  Public
 const getMajors = asyncHandler(async (req, res) => {
-  const { searchTerm } = req.query;
+  const { searchTerm, departmentId } = req.query;
+
   let result;
 
-  if (searchTerm) {
+  if (departmentId)  {
+    result = await db.query.majors.findMany({
+      where: eq(majors.departmentId, departmentId),
+      with: {
+        department: true,
+      }
+    });
+  } else if (searchTerm) {
     const formattedSearch = searchTerm
       .trim()
       .split(/\s+/)

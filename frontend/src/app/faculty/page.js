@@ -2,7 +2,8 @@
 import FacultySearchForm from "./FacultySearchForm"
 import { useState } from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faSearch, faUser } from '@fortawesome/free-solid-svg-icons'
+import { faSearch, faUser, faArrowRight } from '@fortawesome/free-solid-svg-icons'
+import Link from 'next/link'
 
 function Faculty() {
   const [faculty, setFaculty] = useState([])
@@ -18,7 +19,7 @@ function Faculty() {
         <FacultySearchForm setFaculty={setFaculty} />
         <div className="w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-8">
             {faculty.map((facultyMember) => (
-                <div key={facultyMember.id} className="bg-white p-6 rounded-lg shadow-md border border-gray-300 flex flex-col gap-2">
+                <Link href={`/facultyDashboard/?id=${facultyMember.id}`} key={facultyMember.id} className="bg-white p-6 rounded-lg shadow-md border border-gray-300 flex flex-col gap-2 hover:shadow-lg transition-shadow duration-200 cursor-pointer">
                     <h2 className="text-xl font-semibold">{facultyMember.name}</h2>
                     <p className="text-gray-600">Position: {facultyMember.positionTitle}</p>
                     <p className="text-gray-600">Main Department: {facultyMember.mainDepartment?.name || 'Not Available'}</p>
@@ -30,7 +31,9 @@ function Faculty() {
                             Office Number: {facultyMember.officeNumber || 'Not Available'}
                         </p>
                     </div>
-                </div>
+
+                    <FontAwesomeIcon icon={faArrowRight} className="text-gray-400 group-hover:text-gray-600 group-hover:translate-x-1 transition-all duration-200" />
+                </Link>
             ))}
         </div>
     </div>

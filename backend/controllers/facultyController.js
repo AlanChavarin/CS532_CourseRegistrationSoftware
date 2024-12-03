@@ -41,14 +41,20 @@ const getFaculty = asyncHandler(async (req, res) => {
 // @route   GET /api/faculty/:id
 // @access  Public
 const getFacultyMember = asyncHandler(async (req, res) => {
+  const facultyId = req.params.facultyid;
+
+  if (!facultyId) {
+    res.status(400)
+    throw new Error('Faculty ID is required')
+  }
+
+  console.log("facultyId: ", facultyId)
+
   const facultyMember = await db.query.faculty.findFirst({
-    where: eq(faculty.id, parseInt(req.params.id)),
+    where: eq(faculty.id, facultyId),
     with: {
-      departments: {
-        with: {
-          department: true
-        }
-      }
+      mainDepartment: true,
+      user: true
     }
   })
 

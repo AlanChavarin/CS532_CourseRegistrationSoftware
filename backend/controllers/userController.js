@@ -1,6 +1,6 @@
 const asyncHandler = require('express-async-handler')
 const { db } = require('../db')
-const { users } = require('../schema')
+const { users, students, faculty } = require('../schema')
 const { eq, sql } = require('drizzle-orm')
 
 // @desc    Get all users
@@ -37,10 +37,24 @@ const getUser = asyncHandler(async (req, res) => {
         where: eq(users.id, parseInt(req.params.userId))
     });
 
+    // attach fullUserData based on userType
+    let fullUserData;
+    if (user.userType === 'student') {
+        fullUserData = await db.query.students.findFirst({
+            where: eq(students.userId, user.id)
+        });
+    } else if (user.userType === 'faculty') {
+        fullUserData = await db.query.faculty.findFirst({
+            where: eq(faculty.userId, user.id)
+        });
+    }
+
     if (!user) {
         res.status(404);
         throw new Error('User not found');
     }
+
+    user.fullUserData = fullUserData;
     
     res.status(200).json(user);
 });
@@ -87,21 +101,37 @@ const loginUser = asyncHandler(async (req, res) => {
         throw new Error('Please provide email and password');
     }
 
+
+    // find the user based on the email
     const user = await db.query.users.findFirst({
         where: eq(users.email, email)
     });
-
+    
     if (!user || user.password !== password) { // In production, use proper password hashing
         res.status(401);
         throw new Error('Invalid credentials');
     }
 
+    // find the student or faculty based on the usertype
+    let fullUserData;
+    if (user.userType === 'student') {
+        fullUserData = await db.query.students.findFirst({
+            where: eq(students.userId, user.id)
+        });
+    } else if (user.userType === 'faculty') {
+        fullUserData = await db.query.faculty.findFirst({
+            where: eq(faculty.userId, user.id)
+        });
+    }
+    
     // In production, generate proper JWT token
     res.status(200).json({
         id: user.id,
         name: user.name,
         email: user.email,
-        token: 'jwt_token_here'
+        userType: user.userType,
+        fullUserData: fullUserData,
+        //token: 'jwt_token_here'
     });
 });
 
@@ -137,6 +167,7 @@ const deleteUser = asyncHandler(async (req, res) => {
 
     res.status(200).json({ message: 'User deleted successfully' });
 });
+
 
 module.exports = {
     getUsers,

@@ -7,29 +7,37 @@ const { eq, sql } = require('drizzle-orm')
 // @route   GET /api/courses
 // @access  Public
 const getCourses = asyncHandler(async (req, res) => {
-    const { searchTerm } = req.query;
+    const { searchTerm, departmentId, majorId } = req.query;
+    let result;
 
-    let courses;
-    
-    if (searchTerm) {
+
+    if (departmentId) {
+        result = await db.query.courses.findMany({
+            where: (courses) => eq(courses.departmentId, departmentId)
+        })
+    } else if (majorId) {   
+        result = await db.query.courses.findMany({
+            where: (courses) => eq(courses.majorId, majorId)
+        })
+    } else if (searchTerm) {
         // Convert search term to tsquery format and handle multiple words
         const formattedSearch = searchTerm
             .trim()
             .split(/\s+/)
             .join(' & ');
 
-        courses = await db.execute(sql`
+        result = await db.execute(sql`
             SELECT * FROM courses 
             WHERE to_tsvector('english', title) @@ to_tsquery('english', ${formattedSearch})
             ORDER BY ts_rank(to_tsvector('english', title), to_tsquery('english', ${formattedSearch})) DESC
         `);
 
-        courses = courses.rows;
+        result = result.rows;
     } else {
-        courses = await db.query.courses.findMany();
+        result = await db.query.courses.findMany();
     }
 
-    res.status(200).json(courses);
+    res.status(200).json(result);
 })
 
 // @desc    Get single course

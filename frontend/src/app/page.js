@@ -1,11 +1,10 @@
 'use client'
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faUser, faBook, faGraduationCap, faComputer, faDashboard, faBuilding, faSearch } from "@fortawesome/free-solid-svg-icons";
+import { faUser, faBook, faGraduationCap, faComputer, faDashboard, faBuilding, faSearch, faChalkboardTeacher } from "@fortawesome/free-solid-svg-icons";
 import LinkMenu from "./helperComponents/LinkMenu";
+import { useUser } from "./context/UserContext";
 
 const linkComponentDataArray = [
-  {link: "/studentlogin", icon: faGraduationCap, name: "Student Login"},
-  {link: "/facultyadminlogin", icon: faUser, name: "Faculty/Admin Login"},
   {link: "/courses", icon: faBook, name: "View Courses"},
   {link: "/majors", icon: faGraduationCap, name: "View Majors"},
   {link: "/departments", icon: faBuilding, name: "View Departments"},
@@ -13,13 +12,23 @@ const linkComponentDataArray = [
   {link: "/students", icon: faUser, name: "Student Search"},
   {link: "/faculty", icon: faUser, name: "Faculty Search"},
   {link: "/scheduledCourses", icon: faBook, name: "Scheduled Course Search"},
-  {link: "/admindashboard", icon: faDashboard, name: "Admin Dashboard"},
   {link: "/users", icon: faUser, name: "User Search"},
-  {link: "/courseRegistration", icon: faBook, name: "Course Registration"},
+  
+]
+
+const linkMenuForFaculty = [
+  {link: "/facultyDashboard", icon: faChalkboardTeacher, name: "Faculty Dashboard"},
+  {link: "/admindashboard", icon: faDashboard, name: "Admin Dashboard"},
+]
+
+const linkMenuForStudent = [
+  {link: "/scheduledCourses", icon: faBook, name: "Scheduled Course Search / Registration"},
   {link: "/studentDashboard", icon: faGraduationCap, name: "Student Dashboard"},
 ]
 
 export default function Home() {
+  const { user } = useUser();
+
   return (
     <div className="flex-1 flex flex-col items-center justify-start p-4 sm:p-8 md:p-[128px]">
       <div className="flex flex-row items-center justify-between max-w-[700px] w-full gap-8 md:gap-0">
@@ -30,34 +39,16 @@ export default function Home() {
         </h1>
         <FontAwesomeIcon icon={faComputer} className="text-[100px] md:text-[160px]"/>
       </div>
+
+
+      {user && <>
+        {user.address && <LinkMenu linkComponentDataArray={linkMenuForStudent} />}
+        {user.officeNumber && <LinkMenu linkComponentDataArray={linkMenuForFaculty} />}
+        <div className="w-full h-[2px] bg-black my-4"></div>
+      </> 
+      }
+
       <LinkMenu linkComponentDataArray={linkComponentDataArray} />
     </div>
   );
 }
-
-{/* <div className="flex flex-col md:flex-row items-stretch justify-center gap-[16px] w-full max-w-[1000px] flex-wrap">
-<Link href="/studentlogin" className="flex flex-1 items-center justify-centers gap-[16px] text-[20px] md:text-[24px] hover:text-gray-400 cursor-pointer flex-col p-6 hover:p-8 rounded-lg border-[2px] border-black hover:border-gray-400 w-full md:min-w-[250px] transition-all duration-300">
-    <FontAwesomeIcon icon={faGraduationCap} className="text-[48px] md:text-[64px]"/>
-    <div className="text-center whitespace-nowrap">
-      Student Login
-    </div>
-</Link>
-<Link href="/facultyadminlogin" className="flex flex-1 items-center justify-center gap-[16px] text-[20px] md:text-[24px] hover:text-gray-400 cursor-pointer flex-col p-6 hover:p-8 rounded-lg border-[2px] border-black hover:border-gray-400 w-full md:min-w-[250px] transition-all duration-300">
-    <FontAwesomeIcon icon={faUser} className="text-[48px] md:text-[64px]"/>
-    <div className="text-center whitespace-nowrap">
-      Faculty/Admin Login
-    </div>
-</Link>
-<Link href="/courses" className="flex flex-1 items-center justify-center gap-[16px] text-[20px] md:text-[24px] hover:text-gray-400 cursor-pointer flex-col p-6 hover:p-8 rounded-lg border-[2px] border-black hover:border-gray-400 w-full md:min-w-[250px] transition-all duration-300">
-    <FontAwesomeIcon icon={faBook} className="text-[48px] md:text-[64px]"/>
-    <div className="text-center whitespace-nowrap">
-      View Courses
-    </div>
-</Link>
-<Link href="/admindashboard" className="flex flex-1 items-center justify-center gap-[16px] text-[20px] md:text-[24px] hover:text-gray-400 cursor-pointer flex-col p-6 hover:p-8 rounded-lg border-[2px] border-black hover:border-gray-400 w-full md:min-w-[250px] transition-all duration-300">
-    <FontAwesomeIcon icon={faDashboard} className="text-[48px] md:text-[64px]"/>
-    <div className="text-center whitespace-nowrap">
-      Admin Dashboard
-    </div>
-</Link>
-</div> */}

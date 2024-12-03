@@ -2,7 +2,8 @@
 import MajorSearchForm from "./MajorSearchForm"
 import { useState } from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faSearch, faGraduationCap } from '@fortawesome/free-solid-svg-icons'
+import { faSearch, faGraduationCap, faArrowRight } from '@fortawesome/free-solid-svg-icons'
+import Link from 'next/link'
 
 function Majors() {
   const [majors, setMajors] = useState([])
@@ -18,8 +19,7 @@ function Majors() {
         <MajorSearchForm setMajors={setMajors} />
         <div className="w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-8">
             {majors.map((major) => (
-                <div key={major.id} className="bg-white p-6 rounded-lg shadow-md border border-gray-300 flex flex-col gap-2">
-                    <h2 className="text-xl font-semibold">{major.title}</h2>
+                <Link key={major.id} href={`/majors/${major.id}`} className="group bg-white p-6 rounded-lg shadow-md border border-gray-300 flex flex-col gap-2 hover:shadow-lg transition-all duration-200 cursor-pointer">
                     <p className="text-gray-600">Description: {major.description}</p>
                     <div className="mt-auto pt-4">
                         <p className="text-sm text-gray-500">Department: {major.department.name}</p>
@@ -27,7 +27,11 @@ function Majors() {
                             Required Credits: {major.requiredCredits}
                         </p>
                     </div>
-                </div>
+                    <div className="flex flex-row items-center justify-between">
+                        <h2 className="text-xl font-semibold">{major.title}</h2>
+                        <FontAwesomeIcon icon={faArrowRight} />
+                    </div>
+                </Link>
             ))}
         </div>
     </div>

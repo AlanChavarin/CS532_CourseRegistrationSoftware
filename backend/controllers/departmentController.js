@@ -46,8 +46,6 @@ const getDepartment = asyncHandler(async (req, res) => {
     where: eq(departments.id, parseInt(req.params.departmentId)),
     with: {
       headFaculty: true,
-      faculty: true,
-      courses: true
     }
   })
 

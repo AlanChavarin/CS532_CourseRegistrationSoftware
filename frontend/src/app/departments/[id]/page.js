@@ -13,6 +13,8 @@ import Link from "next/link";
 
 export default function DepartmentDetails({ params: paramsPromise }) {
   const [department, setDepartment] = useState(null);
+  const [courses, setCourses] = useState(null);
+  const [majors, setMajors] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [params, setParams] = useState(null);
@@ -30,6 +32,10 @@ export default function DepartmentDetails({ params: paramsPromise }) {
 
     unwrapParams();
   }, [paramsPromise]);
+
+  useEffect(() => {
+    console.log("department", department)
+  }, [department])
 
   useEffect(() => {
     if (!params?.id) return;
@@ -55,6 +61,24 @@ export default function DepartmentDetails({ params: paramsPromise }) {
     };
 
     fetchDepartmentData();
+
+    const getCourseData = async () => {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_KEY}courses?departmentId=${params.id}`)
+      const data = await response.json()
+
+      setCourses(data)
+    }
+
+    getCourseData()
+
+    const getMajorData = async () => {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_KEY}majors?departmentId=${params.id}`)
+      const data = await response.json()
+
+      setMajors(data)
+    }
+
+    getMajorData()  
   }, [params]);
 
   if (loading) {
@@ -157,12 +181,12 @@ export default function DepartmentDetails({ params: paramsPromise }) {
             Courses
           </h2>
           <span className="text-gray-500">
-            {department.courses?.length || 0} Courses
+            {courses?.length || 0} Courses
           </span>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {department.courses?.map((course) => (
+          {courses?.map((course) => (
             <Link
               key={course.id}
               href={`/courses/${course.id}`}
@@ -184,12 +208,12 @@ export default function DepartmentDetails({ params: paramsPromise }) {
             Majors
           </h2>
           <span className="text-gray-500">
-            {department.majors?.length || 0} Majors
+            {majors?.length || 0} Majors
           </span>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {department.majors?.map((major) => (
+          {majors?.map((major) => (
             <Link
               key={major.id}
               href={`/majors/${major.id}`}

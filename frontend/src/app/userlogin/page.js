@@ -1,17 +1,19 @@
 'use client';
-
-import { useState } from 'react'
+import { useUser } from '../context/UserContext'
+import { useState, useContext } from 'react'
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faGraduationCap, faEye, faEyeSlash, faCircleQuestion } from "@fortawesome/free-solid-svg-icons"
 
 
-export default function StudentLogin() {
+export default function UserLogin() {
   // State Management
   const [formData, setFormData] = useState({
-    studentId: '',
+    email: '',
     password: '',
-    rememberMe: false
   });
+
+  // get the context and its functions
+  const { login } = useUser();
   
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -34,8 +36,8 @@ export default function StudentLogin() {
     setIsLoading(true);
     setError('');
 
-    if (!formData.studentId || !formData.password) {
-      setError('Please enter both Student ID and Password');
+    if (!formData.email || !formData.password) {
+      setError('Please enter both email and password');
       setIsLoading(false);
       return;
     }
@@ -81,9 +83,32 @@ export default function StudentLogin() {
        * }
        */
 
-      // Temporary mock response until backend is ready
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      throw new Error('Authentication system not yet implemented');
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_KEY}users/login`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData)
+      });
+
+      const data = await response.json();
+
+      console.log(data);
+
+      if (data.error) {
+        setError(data.error);
+      } else {
+        localStorage.setItem('token', data.id);
+        login(data.fullUserData);
+        
+        if (data.userType === 'student') {
+          window.location.href = '/studentDashboard?id=' + data.fullUserData.id;
+        } else if (data.userType === 'admin') {
+          window.location.href = '/adminDashboard?id=' + data.fullUserData.id;
+        } else if (data.userType === 'faculty') {
+          window.location.href = '/facultyDashboard?id=' + data.fullUserData.id;
+        }
+      }
       
     } catch (err) {
       setError('Invalid Student ID or password. Please try again.');
@@ -94,8 +119,8 @@ export default function StudentLogin() {
 
   const getFieldHelp = (fieldName) => {
     switch(fieldName) {
-      case 'studentId':
-        return "Enter your Student ID number that was assigned to you by the university.";
+      case 'email':
+        return "Enter your email given to you by the university.";
       case 'password':
         return "Enter your password. If you've forgotten your password, click the 'Forgot password?' link below.";
       default:
@@ -107,7 +132,7 @@ export default function StudentLogin() {
     <div className="flex-1 flex flex-col items-center justify-start p-4 sm:p-8 md:p-[32px]">
       <div className="flex flex-col items-center justify-center gap-4 text-[32px] sm:text-[48px] mb-8">
         <FontAwesomeIcon icon={faGraduationCap} className="text-[48px] sm:text-[64px]" />
-        <h1 className="font-bold text-center">Student Login</h1>
+        <h1 className="font-bold text-center">Login</h1>
       </div>
       
       <div className="w-full max-w-md bg-white p-8 rounded-lg shadow-md border border-gray-300">
@@ -123,36 +148,36 @@ export default function StudentLogin() {
           {/* Student ID Field */}
           <div className="flex flex-col gap-2">
             <div className="flex justify-between items-center">
-              <label htmlFor="studentId" className="text-sm font-semibold text-gray-600">
-                Student ID
+              <label htmlFor="email" className="text-sm font-semibold text-gray-600">
+                Email
               </label>
               <button
                 type="button"
                 onClick={() => {
                   setShowHelp(true);
-                  setFocusedField('studentId');
+                  setFocusedField('email');
                 }}
                 className="text-gray-400 hover:text-gray-600"
-                aria-label="Help for Student ID field"
+                aria-label="Help for email field"
               >
                 <FontAwesomeIcon icon={faCircleQuestion} />
               </button>
             </div>
             <input
-              type="text"
-              id="studentId"
-              name="studentId"
-              value={formData.studentId}
+              type="email"
+              id="email"
+              name="email"
+              value={formData.email}
               onChange={handleChange}
-              onFocus={() => setFocusedField('studentId')}
+              onFocus={() => setFocusedField('email')}
               className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Enter your Student ID"
+              placeholder="Enter your email"
               required
               autoComplete="username"
             />
-            {showHelp && focusedField === 'studentId' && (
+            {showHelp && focusedField === 'email' && (
               <div className="text-sm text-gray-600 bg-gray-50 p-2 rounded-md">
-                {getFieldHelp('studentId')}
+                {getFieldHelp('email')}
               </div>
             )}
           </div>

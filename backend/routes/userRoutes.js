@@ -9,6 +9,9 @@ const {
     loginUser
 } = require('../controllers/userController');
 
+// Login user
+router.post('/login', loginUser);
+
 // Get all users
 router.get('/', getUsers);
 
@@ -24,7 +27,5 @@ router.put('/:userId', updateUser);
 // Delete a user
 router.delete('/:userId', deleteUser);
 
-// Login user
-router.post('/login', loginUser);
 
 module.exports = router;

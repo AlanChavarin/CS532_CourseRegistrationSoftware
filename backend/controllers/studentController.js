@@ -151,6 +151,8 @@ const registerForCourse = asyncHandler(async (req, res) => {
     const studentId = parseInt(req.params.studentId);
     const { scheduledCourseId } = req.body;
 
+    console.log("scheduledCourseId", scheduledCourseId)
+
     // Check if student exists
     const student = await db.query.students.findFirst({
         where: eq(students.id, studentId)
@@ -371,6 +373,26 @@ const dropCourse = asyncHandler(async (req, res) => {
     res.status(200).json(result);
 });
 
+// const loginStudent = asyncHandler(async (req, res) => {
+//     const { studentEmail, password } = req.body;
+
+//     console.log(studentEmail, password);
+
+//     // get the student information from the database
+//     const student = await db.query.students.findFirst({
+//         where: eq(students.email, studentEmail)
+//     });
+
+//     //check if the password is correct
+//     if (student.password !== password) {
+//         res.status(401);
+//         throw new Error('Invalid password');
+//     }
+
+//     res.status(200).json(student);
+
+// });
+
 module.exports = {
     getStudents,
     getStudent,
@@ -379,5 +401,6 @@ module.exports = {
     deleteStudent,
     registerForCourse,
     getRegisteredCourses,
-    dropCourse
+    dropCourse,
+    //loginStudent
 };
