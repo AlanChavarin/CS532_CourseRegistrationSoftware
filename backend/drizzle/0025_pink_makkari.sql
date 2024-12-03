@@ -1,0 +1,1 @@
+ALTER TABLE "scheduled_courses" ADD COLUMN "schedule_number" varchar(20) NOT NULL;

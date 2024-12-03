@@ -40,7 +40,7 @@ const getScheduledCourse = asyncHandler(async (req, res) => {
 // @route   POST /api/scheduled-courses
 // @access  Private/Admin
 const createScheduledCourse = asyncHandler(async (req, res) => {
-    const { courseId, instructorId, location, semester, year, seats, availableSeats } = req.body;
+    const { courseId, instructorId, location, semester, year, seats, scheduleNumber } = req.body;
 
     if (!courseId || !instructorId || !location || !semester || !year) {
         res.status(400);
@@ -54,8 +54,7 @@ const createScheduledCourse = asyncHandler(async (req, res) => {
         semester,
         year,
         seats,
-        availableSeats,
-
+        scheduleNumber
     }).returning();
 
     res.status(201).json(newScheduledCourse[0]);

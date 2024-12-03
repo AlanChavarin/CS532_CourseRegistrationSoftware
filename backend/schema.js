@@ -96,7 +96,6 @@ const faculty = pgTable('faculty', {
   }
 });
 
-
 const scheduledCourses = pgTable('scheduled_courses', {
   id: serial('id').primaryKey(),
   //scheduleNumber: varchar('schedule_number', { length: 20 }).notNull().unique(),
@@ -106,7 +105,8 @@ const scheduledCourses = pgTable('scheduled_courses', {
   seats: integer('seats').notNull().default(0),
   availableSeats: integer('available_seats').notNull().default(0),
   semester: semesterEnum('semester').notNull(),
-  year: integer('year').notNull()
+  year: integer('year').notNull(),
+  scheduleNumber: varchar('schedule_number', { length: 20 }).notNull()
 }, (table) => {
   return {
     instructorIdx: sql`CREATE INDEX IF NOT EXISTS scheduled_courses_instructor_id_idx ON ${table} (instructor_id)`

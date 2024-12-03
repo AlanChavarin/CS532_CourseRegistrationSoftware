@@ -176,6 +176,13 @@
       "when": 1733187375505,
       "tag": "0024_messy_daimon_hellstrom",
       "breakpoints": true
+    },
+    {
+      "idx": 25,
+      "version": "7",
+      "when": 1733193263361,
+      "tag": "0025_pink_makkari",
+      "breakpoints": true
     }
   ]
 }

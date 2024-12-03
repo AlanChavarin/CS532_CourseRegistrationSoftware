@@ -1,23 +1,42 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCalendarPlus } from "@fortawesome/free-solid-svg-icons";
 
 export default function AddScheduledCourse() {
   const [formData, setFormData] = useState({
     courseId: "",
-    scheduleNumber: "",
-    startTime: "",
-    endTime: "",
-    daysOfWeek: "",
+    instructorId: "",
     location: "",
-    facultyId: "",
-    maxSeats: "",
-    availableSeats: "",
     semester: "",
     year: new Date().getFullYear(),
+    seats: "",
+    scheduleNumber: "",
+    //startTime: "",
+    //endTime: "",
+    //daysOfWeek: "",
   });
+
+  const [courses, setCourses] = useState([]);
+  const [faculty, setFaculty] = useState([]);
+
+  useEffect(() => {
+    const fetchCourses = async () => {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_KEY}courses`);
+      const data = await response.json();
+      setCourses(data);
+    };
+
+    const fetchFaculty = async () => {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_KEY}faculty`);
+      const data = await response.json();
+      setFaculty(data);
+    };
+
+    fetchCourses();
+    fetchFaculty();
+  }, []);
 
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
@@ -76,7 +95,7 @@ export default function AddScheduledCourse() {
 
       console.log("API KEY", process.env.NEXT_PUBLIC_API_KEY);
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_KEY}coursesections`,
+        `${process.env.NEXT_PUBLIC_API_KEY}scheduledcourses`,
         {
           method: "POST",
           headers: {
@@ -97,7 +116,7 @@ export default function AddScheduledCourse() {
       }
 
       // Redirect to course sections view page on success
-      window.location.href = "/admindashboard/scheduledcourses";
+      window.location.href = "/scheduledcourses";
     } catch (err) {
       setError(
         err.message || "Failed to create scheduled course. Please try again."
@@ -131,19 +150,23 @@ export default function AddScheduledCourse() {
               >
                 Course*
               </label>
-              <select
-                id="courseId"
+              {courses.length > 0 && (
+                <select
+                  id="courseId"
                 name="courseId"
                 value={formData.courseId}
                 onChange={handleChange}
                 className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                required
-              >
-                <option value="">Select a course</option>
-                {/* @TODO: Fetch courses from backend */}
-                <option value="1">CS 101 - Intro to Programming</option>
-                <option value="2">MATH 201 - Calculus I</option>
-              </select>
+                  required
+                >
+                  <option value="">Select a course</option>
+                  {courses.map((course) => (
+                    <option key={course.id} value={course.id}>
+                      {course.title}
+                    </option>
+                  ))}
+                </select>
+              )}
             </div>
 
             {/* Schedule Number */}
@@ -155,7 +178,7 @@ export default function AddScheduledCourse() {
                 Schedule Number*
               </label>
               <input
-                type="text"
+                type="number"
                 id="scheduleNumber"
                 name="scheduleNumber"
                 value={formData.scheduleNumber}
@@ -167,9 +190,11 @@ export default function AddScheduledCourse() {
             </div>
           </div>
 
+          {/* date functionality to be added later */}
+
           {/* Time and Days */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="flex flex-col gap-2">
+            {/* <div className="flex flex-col gap-2">
               <label
                 htmlFor="startTime"
                 className="text-sm font-semibold text-gray-600"
@@ -185,9 +210,11 @@ export default function AddScheduledCourse() {
                 className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 required
               />
-            </div>
+            </div> */}
 
-            <div className="flex flex-col gap-2">
+            {/* date functionality to be added later */}
+
+            {/* <div className="flex flex-col gap-2">
               <label
                 htmlFor="endTime"
                 className="text-sm font-semibold text-gray-600"
@@ -203,9 +230,11 @@ export default function AddScheduledCourse() {
                 className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 required
               />
-            </div>
+            </div> */}
 
-            <div className="flex flex-col gap-2">
+            {/* date functionality to be added later */}
+
+            {/* <div className="flex flex-col gap-2">
               <label
                 htmlFor="daysOfWeek"
                 className="text-sm font-semibold text-gray-600"
@@ -222,7 +251,7 @@ export default function AddScheduledCourse() {
                 placeholder="e.g., MWF or TTH"
                 required
               />
-            </div>
+            </div> */}
           </div>
 
           {/* Location and Instructor */}
@@ -248,24 +277,29 @@ export default function AddScheduledCourse() {
 
             <div className="flex flex-col gap-2">
               <label
-                htmlFor="facultyId"
+                htmlFor="instructorId"
                 className="text-sm font-semibold text-gray-600"
               >
                 Instructor*
               </label>
-              <select
-                id="facultyId"
-                name="facultyId"
-                value={formData.facultyId}
-                onChange={handleChange}
-                className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                required
-              >
-                <option value="">Select an instructor</option>
-                {/* @TODO: Fetch faculty from backend */}
-                <option value="1">Dr. John Smith</option>
-                <option value="2">Prof. Jane Doe</option>
-              </select>
+
+              {faculty.length > 0 && (
+                <select
+                  id="instructorId"
+                  name="instructorId"
+                  value={formData.instructorId}
+                  onChange={handleChange}
+                  className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  required
+                >
+                  <option value="">Select an instructor</option>
+                  {faculty.map((faculty) => (
+                    <option key={faculty.id} value={faculty.id}>
+                      {faculty.name}
+                    </option>
+                  ))}
+                </select>
+              )}
             </div>
           </div>
 
@@ -273,16 +307,16 @@ export default function AddScheduledCourse() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="flex flex-col gap-2">
               <label
-                htmlFor="maxSeats"
+                htmlFor="seats"
                 className="text-sm font-semibold text-gray-600"
               >
                 Maximum Seats*
               </label>
               <input
                 type="number"
-                id="maxSeats"
-                name="maxSeats"
-                value={formData.maxSeats}
+                id="seats"
+                name="seats"
+                value={formData.seats}
                 onChange={handleChange}
                 className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 placeholder="Enter max seats"
@@ -291,24 +325,6 @@ export default function AddScheduledCourse() {
               />
             </div>
 
-            <div className="flex flex-col gap-2">
-              <label
-                htmlFor="availableSeats"
-                className="text-sm font-semibold text-gray-600"
-              >
-                Available Seats
-              </label>
-              <input
-                type="number"
-                id="availableSeats"
-                name="availableSeats"
-                value={formData.availableSeats}
-                onChange={handleChange}
-                className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-100"
-                placeholder="Available seats"
-                readOnly
-              />
-            </div>
           </div>
 
           {/* Term Information */}
