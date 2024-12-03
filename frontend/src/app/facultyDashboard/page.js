@@ -1,18 +1,17 @@
 'use client'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faBook, faChalkboardTeacher } from "@fortawesome/free-solid-svg-icons"
 import { useUser } from '../context/UserContext'  
 
-export default function FacultyDashboard() {
+function FacultyDashboardContent() {
   const { user } = useUser();
   const [faculty, setFaculty] = useState(null)
   const [assignedScheduledCourses, setAssignedScheduledCourses] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [department, setDepartment] = useState(null)
-  // params
   const searchParams = useSearchParams()
 
   useEffect(() => {
@@ -20,11 +19,8 @@ export default function FacultyDashboard() {
   }, [faculty])
 
   useEffect(() => {
-
-
     const fetchData = async () => {
       try {
-
         if(searchParams.get('id')) {
           const facultyRes = await fetch(`${process.env.NEXT_PUBLIC_API_KEY}faculty/${searchParams.get('id')}`)
           if (!facultyRes.ok) throw new Error('Failed to fetch faculty data')
@@ -62,7 +58,7 @@ export default function FacultyDashboard() {
     if (user || searchParams.get('id')) {
       fetchData()
     }
-  }, [user])
+  }, [user, searchParams])
 
   useEffect(() => {
     const fetchData = async () => {
@@ -89,7 +85,6 @@ export default function FacultyDashboard() {
     }
   }, [faculty])
 
-
   if (loading) {
     return (
       <div className="flex-1 flex items-center justify-center">
@@ -106,7 +101,7 @@ export default function FacultyDashboard() {
     )
   }
 
-  if (!user) {
+  if (!faculty) {
     return (
       <div className="flex-1 flex items-center justify-center">
         <div className="text-xl">Faculty member not found</div>
@@ -119,7 +114,7 @@ export default function FacultyDashboard() {
       <div className="w-full max-w-4xl">
         <div className="flex items-center gap-4 mb-8">
           <FontAwesomeIcon icon={faChalkboardTeacher} className="text-4xl"/>
-          <h1 className="text-3xl font-bold">{faculty.name}'s {searchParams.get('id') ? 'Details' : 'Dashboard'}</h1>
+          <h1 className="text-3xl font-bold">{faculty.name}&apos;s {searchParams.get('id') ? 'Details' : 'Dashboard'}</h1>
         </div>
 
         <div className="bg-white rounded-lg shadow p-6 mb-8">
@@ -198,5 +193,17 @@ export default function FacultyDashboard() {
         </div>
       </div>
     </div>
+  )
+}
+
+export default function FacultyDashboard() {
+  return (
+    <Suspense fallback={
+      <div className="flex-1 flex items-center justify-center">
+        <div className="text-xl">Loading...</div>
+      </div>
+    }>
+      <FacultyDashboardContent />
+    </Suspense>
   )
 }

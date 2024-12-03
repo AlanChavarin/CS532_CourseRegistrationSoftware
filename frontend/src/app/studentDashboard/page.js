@@ -1,11 +1,11 @@
 'use client'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faBook, faGraduationCap } from "@fortawesome/free-solid-svg-icons"
 import { useUser } from '../context/UserContext'
 
-export default function StudentDashboard() {
+function StudentDashboardContent() {
   const { user } = useUser();
   const [student, setStudent] = useState(null)
   const [enrolledCourses, setEnrolledCourses] = useState([])
@@ -41,7 +41,7 @@ export default function StudentDashboard() {
     if (user || searchParams.get('id')) {
       fetchData()
     }
-  }, [user])
+  }, [user, searchParams])
 
   useEffect(() => {
     const fetchData = async () => {
@@ -91,7 +91,7 @@ export default function StudentDashboard() {
       <div className="w-full max-w-4xl">
         <div className="flex items-center gap-4 mb-8">
           <FontAwesomeIcon icon={faGraduationCap} className="text-4xl"/>
-          <h1 className="text-3xl font-bold">{student.name}'s {searchParams.get('id') ? 'Details' : 'Dashboard'}</h1>
+          <h1 className="text-3xl font-bold">{student.name}&apos;s {searchParams.get('id') ? 'Details' : 'Dashboard'}</h1>
         </div>
 
         <div className="bg-white rounded-lg shadow p-6 mb-8">
@@ -162,5 +162,17 @@ export default function StudentDashboard() {
         </div>
       </div>
     </div>
+  )
+}
+
+export default function StudentDashboard() {
+  return (
+    <Suspense fallback={
+      <div className="flex-1 flex items-center justify-center">
+        <div className="text-xl">Loading...</div>
+      </div>
+    }>
+      <StudentDashboardContent />
+    </Suspense>
   )
 }

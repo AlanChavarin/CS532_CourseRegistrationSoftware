@@ -102,11 +102,11 @@ export default function UserLogin() {
         login(data.fullUserData);
         
         if (data.userType === 'student') {
-          window.location.href = '/studentDashboard?id=' + data.fullUserData.id;
+          window.location.href = '/studentDashboard'
         } else if (data.userType === 'admin') {
-          window.location.href = '/adminDashboard?id=' + data.fullUserData.id;
+          window.location.href = '/adminDashboard'
         } else if (data.userType === 'faculty') {
-          window.location.href = '/facultyDashboard?id=' + data.fullUserData.id;
+          window.location.href = '/facultyDashboard'
         }
       }
       
