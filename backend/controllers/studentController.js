@@ -249,6 +249,16 @@ const registerForCourse = asyncHandler(async (req, res) => {
 const getRegisteredCourses = asyncHandler(async (req, res) => {
     const studentId = parseInt(req.params.studentId);
 
+    // Check if student exists
+    const student = await db.query.students.findFirst({
+        where: eq(students.id, studentId)
+    });
+
+    if (!student) {
+        res.status(404);
+        throw new Error('Student not found');
+    }
+
     const registrations = await db.query.studentScheduledCourses.findMany({
         where: eq(studentScheduledCourses.studentId, studentId),
         with: {
@@ -262,6 +272,11 @@ const getRegisteredCourses = asyncHandler(async (req, res) => {
         }
     });
 
+    if (!registrations) {
+        res.status(404);
+        throw new Error('Could not register for course');
+    }
+
     res.status(200).json(registrations);
 });
 
@@ -271,6 +286,16 @@ const getRegisteredCourses = asyncHandler(async (req, res) => {
 const dropCourse = asyncHandler(async (req, res) => {
     const studentId = parseInt(req.params.studentId);
     const registrationId = parseInt(req.params.registrationId);
+
+    // Check if student exists
+    const student = await db.query.students.findFirst({
+        where: eq(students.id, studentId)
+    });
+
+    if (!student) {
+        res.status(404);
+        throw new Error('Student not found');
+    }
 
     const result = await db.transaction(async (tx) => {
         const registration = await tx.query.studentScheduledCourses.findFirst({
