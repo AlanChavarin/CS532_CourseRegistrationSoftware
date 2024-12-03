@@ -105,6 +105,7 @@ const createScheduledCourse = asyncHandler(async (req, res) => {
         semester,
         year,
         seats,
+        availableSeats: seats,
         scheduleNumber
     }).returning();
 

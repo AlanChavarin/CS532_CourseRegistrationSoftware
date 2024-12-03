@@ -1,7 +1,7 @@
 const asyncHandler = require('express-async-handler')
 const { db } = require('../db')
 const { students, users, courseWaitlist, studentScheduledCourses, scheduledCourses } = require('../schema')
-const { eq, sql, desc, asc } = require('drizzle-orm')
+const { eq, sql, desc, asc, and } = require('drizzle-orm')
 
 // @desc    Get all students
 // @route   GET /api/students
@@ -157,6 +157,16 @@ const registerForCourse = asyncHandler(async (req, res) => {
         throw new Error('Student not found');
     }
 
+    //check if the scheduled course exists
+    const scheduledCourse = await db.query.scheduledCourses.findFirst({
+        where: eq(scheduledCourses.id, scheduledCourseId)
+    });
+
+    if (!scheduledCourse) {
+        res.status(404);
+        throw new Error('Scheduled course not found');
+    }
+
     // Check if already registered
     const existingRegistration = await db.query.studentScheduledCourses.findFirst({
         where: and(
@@ -266,7 +276,6 @@ const getRegisteredCourses = asyncHandler(async (req, res) => {
                 with: {
                     course: true,
                     instructor: true,
-                    dates: true
                 }
             }
         }
@@ -278,6 +287,8 @@ const getRegisteredCourses = asyncHandler(async (req, res) => {
     }
 
     res.status(200).json(registrations);
+
+
 });
 
 // @desc    Drop a course
