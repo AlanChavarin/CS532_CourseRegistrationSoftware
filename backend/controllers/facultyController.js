@@ -71,6 +71,11 @@ const createFacultyMember = asyncHandler(async (req, res) => {
     where: eq(users.email, userEmail)
   })
 
+  if (!user) {
+    res.status(404)
+    throw new Error('User not found')
+  }
+
   if (!name || !userEmail) {
     res.status(400)
     throw new Error('Please provide name and userEmail for the faculty member')
@@ -91,7 +96,7 @@ const createFacultyMember = asyncHandler(async (req, res) => {
     positionTitle,
     phoneNumber,
     officeNumber,
-    mainDepartment,
+    mainDepartment: mainDepartment || null,
     userId: user.id
   }).returning()
 

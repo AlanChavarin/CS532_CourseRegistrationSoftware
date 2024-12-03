@@ -1,0 +1,1 @@
+ALTER TABLE "majors" ADD COLUMN "required_units" integer DEFAULT 0 NOT NULL;

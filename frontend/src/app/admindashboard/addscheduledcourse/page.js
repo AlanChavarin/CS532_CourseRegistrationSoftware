@@ -86,6 +86,12 @@ export default function AddScheduledCourse() {
         }
       );
 
+      const data = await response.json();
+
+      if(data.errorMessage){
+        throw new Error(data.errorMessage);
+      }
+
       if (!response.ok) {
         throw new Error("Failed to create scheduled course");
       }

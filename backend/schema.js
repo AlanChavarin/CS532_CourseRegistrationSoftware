@@ -8,7 +8,8 @@ const majors = pgTable('majors', {
   id: serial('id').primaryKey(),
   title: varchar('title', { length: 255 }).notNull(),
   departmentId: integer('department_id').references(() => departments.id),
-  description: text('description')
+  description: text('description'),
+  requiredUnits: integer('required_units').notNull().default(0)
 }, (table) => {
   return {
     titleIdx: sql`CREATE INDEX IF NOT EXISTS majors_title_search_idx ON ${table} USING gin (to_tsvector('english', title))`
@@ -18,6 +19,7 @@ const majors = pgTable('majors', {
 const departments = pgTable('departments', {
   id: serial('id').primaryKey(),
   name: varchar('name', { length: 255 }).notNull().unique(),
+  departmentCode: varchar('department_code', { length: 255 }).notNull().unique(),
   description: text('description'),
   headFacultyId: integer('head_faculty_id').references(() => faculty.id),
 }, (table) => {

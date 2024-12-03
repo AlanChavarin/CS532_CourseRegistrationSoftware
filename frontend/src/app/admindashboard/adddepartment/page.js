@@ -1,17 +1,27 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBuilding } from "@fortawesome/free-solid-svg-icons";
 
 export default function AddDepartment() {
   const [formData, setFormData] = useState({
-    departmentName: "",
+    name: "",
     departmentCode: "",
+    description: "",
+    headFacultyId: "",
   });
 
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+
+  const [faculty, setFaculty] = useState([]);
+
+  useEffect(() => {
+    fetch(`${process.env.NEXT_PUBLIC_API_KEY}faculty`)
+      .then(res => res.json())
+      .then(data => setFaculty(data));
+  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -55,12 +65,18 @@ export default function AddDepartment() {
         }
       );
 
+      const data = await response.json();
+
+      if(data.errorMessage){
+        throw new Error(data.errorMessage);
+      }
+
       if (!response.ok) {
         throw new Error("Failed to create department");
       }
 
       // Redirect to departments view page on success
-      window.location.href = "/admindashboard/departments";
+      window.location.href = "/departments";
     } catch (err) {
       setError(err.message || "Failed to create department. Please try again.");
     } finally {
@@ -92,9 +108,9 @@ export default function AddDepartment() {
             </label>
             <input
               type="text"
-              id="departmentName"
-              name="departmentName"
-              value={formData.departmentName}
+              id="name"
+              name="name"
+              value={formData.name}
               onChange={handleChange}
               className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder="Enter department name"
@@ -127,6 +143,50 @@ export default function AddDepartment() {
                 2-4 uppercase letters (e.g., CS for Computer Science)
               </p>
             </div>
+          </div>
+
+          <div className="flex flex-col gap-2">
+            <label
+              htmlFor="headFacultyId"
+              className="text-sm font-semibold text-gray-600"
+            >
+              Head Faculty
+            </label>
+            { faculty?.length > 0 ? (
+              <select
+                id="headFacultyId"
+                name="headFacultyId" 
+                value={formData.headFacultyId}
+                onChange={handleChange}
+                className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="">Select head faculty</option>
+                {faculty.map(facultyMember => (
+                  <option key={facultyMember.id} value={facultyMember.id}>
+                    {facultyMember.name}
+                  </option>
+                ))}
+              </select>
+            ) : (
+              <p className="text-sm text-gray-500">No faculty members found</p>
+            )}
+          </div>
+
+          <div className="flex flex-col gap-2">
+            <label
+              htmlFor="description"
+              className="text-sm font-semibold text-gray-600"
+            >
+              Description
+            </label>
+            <textarea
+              id="description"
+              name="description"
+              value={formData.description}
+              onChange={handleChange}
+              className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="Enter department description"
+            />
           </div>
 
           <button

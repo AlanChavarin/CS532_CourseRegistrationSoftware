@@ -63,17 +63,18 @@ const getMajor = asyncHandler(async (req, res) => {
 // @route   POST /api/majors
 // @access  Private/Admin
 const createMajor = asyncHandler(async (req, res) => {
-  const { title, departmentId, description } = req.body
+  const { title, departmentId, description, requiredUnits } = req.body
 
-  if (!title) {
+  if (!title || !requiredUnits) {
     res.status(400)
-    throw new Error('Please provide a title for the major')
+    throw new Error('Please provide a title and required units for the major')
   }
 
   const major = await db.insert(majors).values({
     title,
     departmentId,
-    description: description || null
+    description: description || null,
+    requiredUnits: requiredUnits || 0
   }).returning()
 
   res.status(201).json(major[0])

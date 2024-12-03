@@ -81,7 +81,11 @@ export default function AddStudent() {
         }
       )
 
-      const responseData = await response.json();
+      const data = await response.json();
+
+      if(data.errorMessage){
+        throw new Error(data.errorMessage);
+      }
 
       if (!response.ok) {
         throw new Error(responseData.message || "Failed to create student");

@@ -63,17 +63,18 @@ const getDepartment = asyncHandler(async (req, res) => {
 // @route   POST /api/departments
 // @access  Private/Admin
 const createDepartment = asyncHandler(async (req, res) => {
-  const { name, description, headFacultyId } = req.body
+  const { name, departmentCode, description, headFacultyId } = req.body
 
-  if (!name) {
+  if (!name || !departmentCode) {
     res.status(400)
-    throw new Error('Please add a department name')
+    throw new Error('Please add a department name and code')
   }
 
   const department = await db.insert(departments).values({
     name,
     description,
-    headFacultyId: headFacultyId || null
+    headFacultyId: headFacultyId || null,
+    departmentCode
   }).returning()
 
   res.status(201).json(department[0])

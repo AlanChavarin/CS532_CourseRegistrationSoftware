@@ -76,6 +76,12 @@ export default function AddFaculty() {
         }
       );
 
+      const data = await response.json();
+
+      if(data.errorMessage){
+        throw new Error(data.errorMessage);
+      }
+
       if (!response.ok) {
         throw new Error("Failed to create faculty member");
       }
@@ -152,7 +158,7 @@ export default function AddFaculty() {
                 htmlFor="mainDepartment"
                 className="text-sm font-semibold text-gray-600"
               >
-                Department*
+                Department
               </label>
               {departments.length > 0 ? (
                 <select

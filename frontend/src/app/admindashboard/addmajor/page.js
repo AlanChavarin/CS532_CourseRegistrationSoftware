@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faGraduationCap } from "@fortawesome/free-solid-svg-icons";
 
@@ -9,10 +9,19 @@ export default function AddMajor() {
     title: "",
     departmentId: "",
     description: "",
+    requiredUnits: "",
   });
 
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+  
+  const [departments, setDepartments] = useState([]); 
+
+  useEffect(() => {
+    fetch(`${process.env.NEXT_PUBLIC_API_KEY}departments`)
+      .then(res => res.json())
+      .then(data => setDepartments(data));
+  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -54,6 +63,12 @@ export default function AddMajor() {
         body: JSON.stringify(formData),
       });
 
+      const data = await response.json();
+
+      if(data.errorMessage){
+        throw new Error(data.errorMessage);
+      }
+
       if (!response.ok) {
         throw new Error("Failed to create major");
       }
@@ -91,9 +106,9 @@ export default function AddMajor() {
             </label>
             <input
               type="text"
-              id="majorName"
-              name="majorName"
-              value={formData.majorName}
+              id="title"
+              name="title"
+              value={formData.title}
               onChange={handleChange}
               className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder="Enter major name"
@@ -108,8 +123,9 @@ export default function AddMajor() {
             >
               Department*
             </label>
-            <select
-              id="departmentId"
+            { departments.length > 0 && (
+              <select
+                id="departmentId"
               name="departmentId"
               value={formData.departmentId}
               onChange={handleChange}
@@ -118,9 +134,13 @@ export default function AddMajor() {
             >
               <option value="">Select a department</option>
               {/* @TODO: Fetch departments from backend */}
-              <option value="1">Computer Science</option>
-              <option value="2">Mathematics</option>
+              {departments.map(department => (
+                <option key={department.id} value={department.id}>
+                  {department.name}
+                </option>
+              ))}
             </select>
+            )}
           </div>
 
           <div className="flex flex-col gap-2">
@@ -140,6 +160,22 @@ export default function AddMajor() {
               placeholder="Enter required units"
               min="1"
               required
+            />
+          </div>
+
+          <div className="flex flex-col gap-2">
+            <label
+              htmlFor="description"
+              className="text-sm font-semibold text-gray-600"
+            >
+              Description
+            </label>
+            <textarea
+              id="description"
+              name="description"
+              value={formData.description}
+              onChange={handleChange}
+              className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
 
