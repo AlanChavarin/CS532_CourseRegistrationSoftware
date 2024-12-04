@@ -20,9 +20,7 @@ function Sidebar({ isOpen, onClose }) {
       >
         <div className="flex flex-col items-start justify-start gap-[16px] px-4 py-8 bg-gray-800 text-white font-semibold text-[20px] h-full">
           <Link href="/" onClick={onClose} className="hover:text-gray-400 transition-all duration-300">Home</Link>
-          <Link href="/studentlogin" onClick={onClose} className="hover:text-gray-400 transition-all duration-300">Student Login</Link>
-          <Link href="/facultyadminlogin" onClick={onClose} className="hover:text-gray-400 transition-all duration-300">Faculty/Admin Login</Link>
-          <Link href="/courses" onClick={onClose} className="hover:text-gray-400 transition-all duration-300">View Courses</Link>
+          <Link href="/userlogin" onClick={onClose} className="hover:text-gray-400 transition-all duration-300">Student Login</Link>
         </div>
       </div>
     </>
