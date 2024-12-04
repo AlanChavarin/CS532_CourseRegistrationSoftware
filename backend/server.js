@@ -6,7 +6,7 @@ const {errorHandler} = require('./middleware/errorMiddleware')
 const { db } = require('./db')
 
 app.use(cors({
-    origin: 'http://localhost:3000',
+    origin: ['http://localhost:3000', 'https://illustrious-amazement-production.up.railway.app'],
     methods: ['GET', 'POST', 'UPDATE', 'DELETE', 'PATCH', 'OPTIONS', 'PUT']
 }))
 app.listen(process.env.PORT, () => {
